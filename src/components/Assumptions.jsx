@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 function Assumptions() {
+  const [isOpen, setIsOpen] = useState(false);
+
   const assumptions = [
     {
       category: "Livestock & Biogas",
@@ -174,35 +176,56 @@ function Assumptions() {
 
   return (
     <div className="bg-white rounded-xl p-8 shadow-lg border border-emerald-200 mt-8">
-      <h2 className="text-3xl font-bold text-emerald-950 mb-6">Scientific Assumptions & Sources</h2>
-      <p className="text-emerald-800 text-stone-700 mb-6">
-        All calculations in this application are based on peer-reviewed scientific literature and
-        established agricultural and energy databases. Below are the key assumptions and their sources.
-      </p>
+      <div
+        className="flex justify-between items-center cursor-pointer select-none"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <h2 className="text-3xl font-bold text-emerald-950">Scientific Assumptions & Sources</h2>
+        <button className="text-emerald-800 focus:outline-none">
+          {isOpen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          )}
+        </button>
+      </div>
 
-      <div className="space-y-8">
-        {assumptions.map((category, catIndex) => (
-          <div key={catIndex} className="border-l-4 border-emerald-500 pl-6">
-            <h3 className="text-xl font-semibold text-emerald-950 mb-4">{category.category}</h3>
-            <div className="space-y-4">
-              {category.items.map((item, itemIndex) => (
-                <div key={itemIndex} className="bg-white/80 rounded-lg p-4 border border-emerald-100">
-                  <p className="font-medium text-emerald-900 text-stone-800 mb-2">{item.assumption}</p>
-                  <p className="text-sm text-stone-600 italic">Source: {item.source}</p>
+      {isOpen && (
+        <div className="mt-6">
+          <p className="text-emerald-800 text-stone-700 mb-6">
+            All calculations in this application are based on peer-reviewed scientific literature and
+            established agricultural and energy databases. Below are the key assumptions and their sources.
+          </p>
+
+          <div className="space-y-8">
+            {assumptions.map((category, catIndex) => (
+              <div key={catIndex} className="border-l-4 border-emerald-500 pl-6">
+                <h3 className="text-xl font-semibold text-emerald-950 mb-4">{category.category}</h3>
+                <div className="space-y-4">
+                  {category.items.map((item, itemIndex) => (
+                    <div key={itemIndex} className="bg-white/80 rounded-lg p-4 border border-emerald-100">
+                      <p className="font-medium text-emerald-900 text-stone-800 mb-2">{item.assumption}</p>
+                      <p className="text-sm text-stone-600 italic">Source: {item.source}</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
 
-      <div className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg">
-        <h3 className="text-lg font-semibold text-emerald-900 mb-2">Important Note on Financial Calculations</h3>
-        <p className="text-emerald-800 text-stone-700">
-          <strong>Infrastructure Costs (CAPEX) are NOT included in the revenue stack.</strong>
-          Annual financial savings shown are the sum of: Avoided cost (self-consumed energy), Export revenue (capped by grid export limit), and Carbon credits. Infrastructure costs for solar PV and biogas are one-time investments. Payback = Total CAPEX ÷ (Avoided cost + Export revenue + Carbon credits).
-        </p>
-      </div>
+          <div className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg">
+            <h3 className="text-lg font-semibold text-emerald-900 mb-2">Important Note on Financial Calculations</h3>
+            <p className="text-emerald-800 text-stone-700">
+              <strong>Infrastructure Costs (CAPEX) are NOT included in the revenue stack.</strong>
+              Annual financial savings shown are the sum of: Avoided cost (self-consumed energy), Export revenue (capped by grid export limit), and Carbon credits. Infrastructure costs for solar PV and biogas are one-time investments. Payback = Total CAPEX ÷ (Avoided cost + Export revenue + Carbon credits).
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
