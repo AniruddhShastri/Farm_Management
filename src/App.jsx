@@ -212,9 +212,20 @@ function App() {
         <div className="mb-8">
           <div className="flex justify-between items-start mb-4">
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-emerald-950 mb-2">
+              <div className="flex items-center gap-3 mb-3">
+                <svg width="48" height="48" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M50 15 L85 35 L50 55 L15 35 Z" fill="#4F73FF" stroke="white" strokeWidth="4" strokeLinejoin="round" />
+                  <path d="M15 35 L50 55 L50 95 L15 75 Z" fill="#FFD34C" stroke="white" strokeWidth="4" strokeLinejoin="round" />
+                  <path d="M50 55 L85 35 L85 75 L50 95 Z" fill="#00C266" stroke="white" strokeWidth="4" strokeLinejoin="round" />
+                </svg>
+                <div className="text-4xl tracking-tight text-black flex items-center mt-1">
+                  <span className="font-extrabold">VON</span>
+                  <span className="font-medium">ENG</span>
+                </div>
+              </div>
+              <h2 className="text-2xl font-bold text-emerald-950 mb-2">
                 EcoSynergy: Circular Farm Systems Integrator
-              </h1>
+              </h2>
               <p className="text-emerald-800">
                 Modeling energy, water, and biological waste flows in agricultural ecosystems
               </p>
