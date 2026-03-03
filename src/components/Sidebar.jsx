@@ -270,66 +270,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
           <p className="text-xs text-emerald-100/80 mt-1">Affects methane savings and carbon credits</p>
         </div>
 
-        {/* Hybrid RES Calculator Inputs */}
-        <div>
-          <h3 className="text-lg font-semibold text-emerald-100 mb-4">Hybrid RES Calculator</h3>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-emerald-100 mb-2">Cattle Manure Type</label>
-              <select
-                value={inputs.cattleType || 'Dairy'}
-                onChange={(e) => onInputChange('cattleType', e.target.value)}
-                className="w-full px-4 py-2 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 bg-emerald-800 text-white"
-              >
-                <option value="Dairy">Dairy</option>
-                <option value="Beef">Beef</option>
-                <option value="Feedlot">Feedlot</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-emerald-100 mb-2">Additional Biomass (tons/day)</label>
-              <input
-                type="number"
-                min="0"
-                step="0.1"
-                value={inputs.amountBiomassTonsDay === 0 ? '' : (inputs.amountBiomassTonsDay || '')}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onInputChange('amountBiomassTonsDay', val === '' ? 0 : parseFloat(val) || 0);
-                }}
-                className="w-full px-4 py-2 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 bg-emerald-800 text-white"
-                placeholder="0"
-              />
-              <p className="text-xs text-emerald-100/80 mt-1">Calculated if cows = 0</p>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-emerald-100 mb-2">Daily Load Demand (kWh)</label>
-              <input
-                type="number"
-                min="0"
-                step="1"
-                value={inputs.dailyLoadKwh === 0 ? '' : (inputs.dailyLoadKwh || '')}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  onInputChange('dailyLoadKwh', val === '' ? 0 : parseFloat(val) || 0);
-                }}
-                className="w-full px-4 py-2 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 bg-emerald-800 text-white"
-                placeholder="Manual daily load"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-emerald-100 mb-2">If Biomass is Insufficient:</label>
-              <select
-                value={inputs.insufficientBiomassChoice || 'add_biomass'}
-                onChange={(e) => onInputChange('insufficientBiomassChoice', e.target.value)}
-                className="w-full px-4 py-2 border border-emerald-800 rounded-lg focus:ring-2 focus:ring-emerald-400 focus:border-emerald-400 bg-emerald-800 text-white"
-              >
-                <option value="add_biomass">Add more biomass</option>
-                <option value="use_diesel">Use Diesel Generator</option>
-              </select>
-            </div>
-          </div>
-        </div>
+
 
         {/* Feedstock mix */}
         <div>

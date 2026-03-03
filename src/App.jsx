@@ -9,7 +9,6 @@ import RecipeCheckWarning from './components/RecipeCheckWarning';
 import DigestateCard from './components/DigestateCard';
 import RevenueStack from './components/RevenueStack';
 import ParasiticLoadNote from './components/ParasiticLoadNote';
-import HybridRESCalculator from './components/HybridRESCalculator';
 import {
   getBiogasEnergy,
   getBiogasEnergyRaw,
@@ -29,10 +28,7 @@ import {
   getDigestateSavingsEur,
   getRecipeCheck,
   getRevenueStack,
-  getMethaneSavingsCo2e,
-  getRTFMethane,
-  getRTFPower,
-  getHybridRESSuggestion
+  getMethaneSavingsCo2e
 } from './utils/calculator';
 import locationData from '../locationData.json';
 
@@ -68,10 +64,6 @@ function App() {
       feedstock_root_starch: 0,
       feedstock_sugary_fruit: 0,
       feedstock_manure: 50,
-      cattleType: 'Dairy',
-      amountBiomassTonsDay: 0,
-      dailyLoadKwh: 100,
-      insufficientBiomassChoice: 'add_biomass',
       ...cropInputs
     };
   });
@@ -188,13 +180,6 @@ function App() {
   });
   const methaneSavingsCo2e = getMethaneSavingsCo2e(annualBiogasM3, inputs.manureManagement || 'open_lagoon');
 
-  // Hybrid RES variables
-  const { cattleType, amountBiomassTonsDay, dailyLoadKwh, insufficientBiomassChoice } = inputs;
-  const dailyPvKwh = solarEnergy / 365;
-  const rtfMethaneM3 = getRTFMethane(cattleType, inputs.cows, amountBiomassTonsDay);
-  const rtfPowerKwh = getRTFPower(rtfMethaneM3);
-  const rtfSuggestion = getHybridRESSuggestion(dailyPvKwh, dailyLoadKwh || 0, rtfPowerKwh, insufficientBiomassChoice === 'add_biomass', cattleType);
-
   return (
     <div className="flex h-screen bg-green-50">
       {/* Sidebar */}
@@ -264,15 +249,6 @@ function App() {
           financialSavings={financialSavings}
           energyIndependence={energyIndependence}
           carbonImpact={totalCarbonImpact}
-        />
-
-        {/* Hybrid RES Calculator Integration */}
-        <HybridRESCalculator
-          methaneGeneratedM3={rtfMethaneM3}
-          biogasPowerGeneratedKwh={rtfPowerKwh}
-          dailyPvKwh={dailyPvKwh}
-          dailyLoadKwh={dailyLoadKwh || 0}
-          suggestion={rtfSuggestion}
         />
 
         {/* Digestate & Revenue Stack row */}
