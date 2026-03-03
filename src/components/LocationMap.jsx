@@ -2,15 +2,14 @@ import React from 'react';
 
 function LocationMap({ location, coordinates }) {
   // Use OpenStreetMap embed with iframe
-  const mapUrl = coordinates 
+  const mapUrl = coordinates
     ? `https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.2},${coordinates.lat - 0.2},${coordinates.lng + 0.2},${coordinates.lat + 0.2}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`
     : null;
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-emerald-100 p-4">
-      <h3 className="text-lg font-semibold text-stone-800 mb-3">Location Map</h3>
+    <div className="w-full h-full relative group">
       {coordinates ? (
-        <div className="relative w-full h-64 rounded-lg overflow-hidden border border-emerald-100 bg-stone-50">
+        <div className="w-full h-full relative overflow-hidden bg-stone-50">
           <iframe
             width="100%"
             height="100%"
@@ -20,16 +19,35 @@ function LocationMap({ location, coordinates }) {
             marginWidth="0"
             src={mapUrl}
             title={location}
-            style={{ border: 0 }}
+            style={{
+              border: 0,
+              filter: 'grayscale(0.2) contrast(1.1)',
+              width: '100%',
+              height: '102%' // Slightly over 100% to hide potential gaps or attributions if needed
+            }}
             allowFullScreen
           />
-          <div className="absolute bottom-2 left-2 bg-white bg-opacity-95 px-3 py-1.5 rounded shadow text-sm font-medium text-stone-800 border border-emerald-100">
-            📍 {location}
+          <div className="absolute bottom-6 left-6 z-20">
+            <div className="glass-card bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border-white flex items-center gap-3 transform transition-transform group-hover:scale-110">
+              <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-200">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+              </div>
+              <div>
+                <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Station Location</span>
+                <span className="block text-sm font-black text-slate-900 tracking-tight">{location}</span>
+              </div>
+            </div>
           </div>
         </div>
       ) : (
-        <div className="w-full h-64 bg-stone-50 rounded-lg flex items-center justify-center text-stone-500">
-          Map unavailable - coordinates not found
+        <div className="w-full h-full bg-stone-50 flex items-center justify-center">
+          <div className="flex flex-col items-center gap-2">
+            <span className="text-4xl">📍</span>
+            <p className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">Coordinates not found</p>
+          </div>
         </div>
       )}
     </div>

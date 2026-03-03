@@ -175,19 +175,19 @@ function Assumptions() {
   ];
 
   return (
-    <div className="bg-white rounded-xl p-8 shadow-lg border border-emerald-200 mt-8">
+    <div className="bg-white rounded-xl p-5 shadow-sm border border-emerald-50 mt-6">
       <div
         className="flex justify-between items-center cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <h2 className="text-3xl font-bold text-emerald-950">Scientific Assumptions & Sources</h2>
+        <h2 className="text-xl font-black text-emerald-950 uppercase tracking-wider">Methodology & Sources</h2>
         <button className="text-emerald-800 focus:outline-none">
           {isOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
           ) : (
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           )}
@@ -195,21 +195,21 @@ function Assumptions() {
       </div>
 
       {isOpen && (
-        <div className="mt-6">
-          <p className="text-emerald-800 text-stone-700 mb-6">
-            All calculations in this application are based on peer-reviewed scientific literature and
-            established agricultural and energy databases. Below are the key assumptions and their sources.
+        <div className="mt-4">
+          <p className="text-[11px] text-slate-500 mb-6 leading-relaxed">
+            Calculations are derived from peer-reviewed scientific literature and
+            established global databases.
           </p>
 
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {assumptions.map((category, catIndex) => (
-              <div key={catIndex} className="border-l-4 border-emerald-500 pl-6">
-                <h3 className="text-xl font-semibold text-emerald-950 mb-4">{category.category}</h3>
-                <div className="space-y-4">
+              <div key={catIndex} className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
+                <h3 className="text-sm font-black text-[#2d5a4c] mb-3 uppercase tracking-wider">{category.category}</h3>
+                <div className="space-y-3">
                   {category.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="bg-white/80 rounded-lg p-4 border border-emerald-100">
-                      <p className="font-medium text-emerald-900 text-stone-800 mb-2">{item.assumption}</p>
-                      <p className="text-sm text-stone-600 italic">Source: {item.source}</p>
+                    <div key={itemIndex} className="bg-white/80 rounded-lg p-3 border border-emerald-100/50">
+                      <p className="text-[11px] font-bold text-slate-700 mb-1">{item.assumption}</p>
+                      <p className="text-[9px] text-slate-400 italic">Source: {item.source}</p>
                     </div>
                   ))}
                 </div>

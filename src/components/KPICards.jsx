@@ -1,54 +1,70 @@
 import React from 'react';
 import { formatCurrency, formatCarbon, formatNumber } from '../utils/unitConverter';
 
+function KPICard({ title, value, unit, subtitle, icon, colorClass, gradientFrom }) {
+  return (
+    <div className="glass-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:-translate-y-1 border-white/40">
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} to-transparent opacity-10 rounded-full -mr-12 -mt-12 transition-transform duration-700 group-hover:scale-150`} />
+
+      <div className="relative z-10">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{title}</h3>
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${colorClass} text-white transform transition-transform group-hover:rotate-12`}>
+            {icon}
+          </div>
+        </div>
+
+        <div className="flex items-baseline gap-1.5 mb-1">
+          <span className="text-3xl font-black tracking-tight text-slate-900 leading-none">
+            {value}
+          </span>
+          {unit && (
+            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+              {unit}
+            </span>
+          )}
+        </div>
+
+        <p className="text-[10px] font-bold text-slate-500 tracking-wide uppercase">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
+
 function KPICards({ financialSavings, energyIndependence, carbonImpact }) {
   const carbonFormatted = formatCarbon(Math.abs(carbonImpact));
-  
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-      {/* Bio/Waste (Financial) - Emerald */}
-      <div className="bg-gradient-to-br from-emerald-100 to-white border border-emerald-300 rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-emerald-900">Financial Savings</h3>
-          <div className="w-12 h-12 bg-emerald-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl">$</span>
-          </div>
-        </div>
-        <div className="text-4xl font-bold text-emerald-900 mb-2">
-          {formatCurrency(financialSavings)}
-        </div>
-        <p className="text-sm text-emerald-800">Annual savings from energy & water</p>
-      </div>
+      <KPICard
+        title="Annual Savings"
+        value={formatCurrency(financialSavings).replace('$', '')}
+        unit="$"
+        subtitle="Saved through efficiency"
+        icon={<span className="text-lg font-bold">$</span>}
+        colorClass="bg-emerald-600 shadow-emerald-200"
+        gradientFrom="from-emerald-400"
+      />
 
-      {/* Solar/Energy - Amber/Sage */}
-      <div className="bg-gradient-to-br from-amber-50 to-white border border-amber-200 rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-amber-900">Energy Independence</h3>
-          <div className="w-12 h-12 bg-amber-500 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl">⚡</span>
-          </div>
-        </div>
-        <div className="text-4xl font-bold text-amber-900 mb-2">
-          {parseFloat(energyIndependence.toFixed(3))}%
-        </div>
-        <p className="text-sm text-amber-800">Self-generated energy</p>
-      </div>
+      <KPICard
+        title="Energy Autonomy"
+        value={parseFloat(energyIndependence.toFixed(1))}
+        unit="%"
+        subtitle="Self-generated power"
+        icon={<span className="text-lg">⚡</span>}
+        colorClass="bg-amber-500 shadow-amber-200"
+        gradientFrom="from-amber-400"
+      />
 
-      {/* Water - Teal/Sky */}
-      <div className="bg-gradient-to-br from-teal-50 to-white border border-teal-200 rounded-xl p-6 shadow-lg">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-teal-900">Carbon Impact</h3>
-          <div className="w-12 h-12 bg-teal-600 rounded-lg flex items-center justify-center">
-            <span className="text-white text-2xl">🌱</span>
-          </div>
-        </div>
-        <div className={`text-4xl font-bold mb-2 ${carbonImpact < 0 ? 'text-teal-700' : 'text-teal-900'}`}>
-          {carbonImpact < 0 ? '-' : '+'}{formatNumber(carbonFormatted.value)} {carbonFormatted.unit} CO₂e
-        </div>
-        <p className="text-sm text-teal-800">
-          {carbonImpact < 0 ? 'Carbon negative' : 'Net emissions'}
-        </p>
-      </div>
+      <KPICard
+        title="Carbon Balance"
+        value={`${carbonImpact < 0 ? '-' : '+'}${formatNumber(carbonFormatted.value)}`}
+        unit={carbonFormatted.unit}
+        subtitle={carbonImpact < 0 ? 'Climate Positive' : 'Net Emissions'}
+        icon={<span className="text-lg">🌱</span>}
+        colorClass="bg-sky-600 shadow-sky-200"
+        gradientFrom="from-sky-400"
+      />
     </div>
   );
 }

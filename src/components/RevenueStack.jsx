@@ -7,35 +7,34 @@ function RevenueStack({ revenue }) {
   const { avoidedCostEur, exportRevenueEur, carbonCreditsEur, totalEur, exportKwh, selfConsumedKwh } = revenue;
 
   return (
-    <div className="rounded-xl border border-emerald-200 bg-white p-6 shadow-lg">
-      <h3 className="text-xl font-bold text-emerald-950 mb-4">Revenue Stack</h3>
-      <p className="text-sm text-emerald-800 mb-4">Three lines of income from your energy system</p>
-      <div className="space-y-4">
-        <div className="flex items-center justify-between rounded-lg bg-stone-100 border border-stone-200 p-4">
+    <div className="rounded-xl border border-emerald-100 bg-white p-4 shadow-sm">
+      <h3 className="text-lg font-black text-emerald-950 mb-3 uppercase tracking-wider">Revenue Stack</h3>
+      <div className="space-y-3">
+        <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 p-3">
           <div>
-            <p className="font-medium text-stone-700">Avoided cost</p>
-            <p className="text-sm text-stone-600">Money saved by not buying from the grid ({selfConsumedKwh?.toLocaleString?.() || 0} kWh self-consumed)</p>
+            <p className="text-xs font-bold text-slate-700">Avoided cost</p>
+            <p className="text-[10px] text-slate-400">({selfConsumedKwh?.toLocaleString?.() || 0} kWh self-used)</p>
           </div>
-          <span className="text-xl font-bold text-stone-700">{formatCurrencyEuro(avoidedCostEur)}/yr</span>
+          <span className="text-lg font-black text-slate-700">{formatCurrencyEuro(avoidedCostEur)}/yr</span>
         </div>
-        <div className="flex items-center justify-between rounded-lg bg-green-100 border border-green-200 p-4">
+        <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-100 p-3">
           <div>
-            <p className="font-medium text-green-800">Export revenue</p>
-            <p className="text-sm text-green-700">Money made by selling to the grid ({exportKwh?.toLocaleString?.() || 0} kWh exported)</p>
+            <p className="text-xs font-bold text-emerald-800">Export revenue</p>
+            <p className="text-[10px] text-emerald-600">({exportKwh?.toLocaleString?.() || 0} kWh exported)</p>
           </div>
-          <span className="text-xl font-bold text-green-800">{formatCurrencyEuro(exportRevenueEur)}/yr</span>
+          <span className="text-lg font-black text-emerald-800">{formatCurrencyEuro(exportRevenueEur)}/yr</span>
         </div>
-        <div className="flex items-center justify-between rounded-lg bg-teal-50 border border-teal-200 p-4">
+        <div className="flex items-center justify-between rounded-xl bg-teal-50 border border-teal-100 p-3">
           <div>
-            <p className="font-medium text-teal-800">Carbon credits (Green attributes)</p>
-            <p className="text-sm text-teal-700">Potential revenue from selling the &quot;Green Attributes&quot;</p>
+            <p className="text-xs font-bold text-teal-800">Carbon credits</p>
+            <p className="text-[10px] text-teal-600">Green attributes revenue</p>
           </div>
-          <span className="text-xl font-bold text-teal-800">{formatCurrencyEuro(carbonCreditsEur)}/yr</span>
+          <span className="text-lg font-black text-teal-800">{formatCurrencyEuro(carbonCreditsEur)}/yr</span>
         </div>
       </div>
-      <div className="mt-4 pt-4 border-t border-emerald-200 flex justify-between items-center">
-        <span className="font-semibold text-emerald-900">Total revenue (€/yr)</span>
-        <span className="text-2xl font-bold text-emerald-950">{formatCurrencyEuro(totalEur)}</span>
+      <div className="mt-3 pt-3 border-t border-slate-100 flex justify-between items-center px-1">
+        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Annual Total</span>
+        <span className="text-xl font-black text-emerald-600">{formatCurrencyEuro(totalEur)}</span>
       </div>
     </div>
   );
