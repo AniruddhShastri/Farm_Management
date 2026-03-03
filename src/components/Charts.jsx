@@ -201,33 +201,33 @@ function Charts({
         </div>
 
         {/* Improved Legend and Summary */}
-        <div className="mt-8 grid grid-cols-3 gap-6 pt-6 border-t border-slate-100">
-          <div className="group/item cursor-default">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-slate-100">
+          <div className="group/item cursor-default bg-emerald-50/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
               <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Biogas</p>
             </div>
-            <p className="text-lg font-black text-slate-800 group-hover/item:text-emerald-700 transition-colors">
+            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-emerald-700 transition-colors">
               {formatNumber(biogasFormatted.value)} <span className="text-[10px] text-slate-400">{biogasFormatted.unit}</span>
             </p>
           </div>
 
-          <div className="group/item cursor-default">
+          <div className="group/item cursor-default bg-amber-50/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
               <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Solar</p>
             </div>
-            <p className="text-lg font-black text-slate-800 group-hover/item:text-amber-600 transition-colors">
+            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-amber-600 transition-colors">
               {formatNumber(solarFormatted.value)} <span className="text-[10px] text-slate-400">{solarFormatted.unit}</span>
             </p>
           </div>
 
-          <div className="group/item cursor-default">
+          <div className="group/item cursor-default bg-rose-50/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
             <div className="flex items-center gap-2 mb-1">
               <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
               <p className="text-[10px] font-black text-rose-800 uppercase tracking-widest">From Grid</p>
             </div>
-            <p className="text-lg font-black text-slate-800 group-hover/item:text-rose-600 transition-colors">
+            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-rose-600 transition-colors">
               {formatNumber(formatEnergy(Math.max(0, totalEnergyRequired - totalEnergy)).value)} <span className="text-[10px] text-slate-400">{formatEnergy(Math.max(0, totalEnergyRequired - totalEnergy)).unit}</span>
             </p>
           </div>
@@ -463,18 +463,18 @@ function Charts({
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-8 grid grid-cols-3 gap-4 pt-6 border-t border-slate-100/50">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-slate-100/50">
           <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-100/50 transition-all hover:bg-amber-50">
             <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Energy Saving</p>
-            <p className="text-xl font-black text-slate-900">{formatCurrency(energySavings)}</p>
+            <p className="text-lg sm:text-xl font-black text-slate-900">{formatCurrency(energySavings)}</p>
           </div>
           <div className="bg-cyan-50/50 rounded-2xl p-4 border border-cyan-100/50 transition-all hover:bg-cyan-50">
             <p className="text-[10px] font-black text-cyan-800 uppercase tracking-widest mb-1">Water Saving</p>
-            <p className="text-xl font-black text-slate-900">{formatCurrency(waterSavings)}</p>
+            <p className="text-lg sm:text-xl font-black text-slate-900">{formatCurrency(waterSavings)}</p>
           </div>
           <div className="bg-emerald-600 rounded-2xl p-4 shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] hover:bg-emerald-700">
             <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1">Gross Yield</p>
-            <p className="text-xl font-black text-white">{formatCurrency(financialSavings)}</p>
+            <p className="text-lg sm:text-xl font-black text-white">{formatCurrency(financialSavings)}</p>
           </div>
         </div>
       </div>

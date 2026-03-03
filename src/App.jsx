@@ -9,6 +9,8 @@ import RecipeCheckWarning from './components/RecipeCheckWarning';
 import DigestateCard from './components/DigestateCard';
 import RevenueStack from './components/RevenueStack';
 import ParasiticLoadNote from './components/ParasiticLoadNote';
+import logoSidebar from './assets/logo-sidebar.png';
+import logo from './assets/logo.png';
 import {
   getBiogasEnergy,
   getBiogasEnergyRaw,
@@ -180,8 +182,18 @@ function App() {
   });
   const methaneSavingsCo2e = getMethaneSavingsCo2e(annualBiogasM3, inputs.manureManagement || 'open_lagoon');
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-[#f8fafc]">
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 lg:hidden transition-opacity animate-in fade-in duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
       <Sidebar
         inputs={inputs}
@@ -189,65 +201,75 @@ function App() {
         locationOptions={locationOptions}
         calculatedRainfall={calculatedRainfall}
         isRainfallManual={inputs.isRainfallManual}
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
       />
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto relative bg-[#f8fafc]">
+      <div className="flex-1 overflow-y-auto relative min-w-0">
+        {/* Mobile Header Toolbar */}
+        <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-md border-b border-slate-100">
+          <img src={logo} alt="Logo" className="h-9 w-auto object-contain" />
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="p-2 bg-emerald-50 text-emerald-600 rounded-xl active:scale-95 transition-all"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </button>
+        </div>
         {/* Decorative Background Elements */}
         <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-emerald-100/30 to-transparent -z-10 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-1/3 h-1/3 bg-gradient-to-tr from-amber-100/20 to-transparent -z-10 blur-3xl pointer-events-none" />
 
-        <div className="max-w-6xl mx-auto p-8 animate-fade-in">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 sm:py-8 animate-fade-in relative z-10">
           {/* 1. Header Section: Heading, Subheading, Location & Temp */}
-          <header className="mb-10">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-8 mb-8">
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="p-3 bg-emerald-600 rounded-2xl shadow-xl shadow-emerald-200/50">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M2 17L12 22L22 17" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                      <path d="M2 12L12 17L22 12" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </div>
+          <header className="mb-8 lg:mb-12">
+            <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 mb-8">
+              <div className="flex-1 w-full">
+                <div className="hidden lg:flex items-center gap-3 mb-4">
+                  <img src={logoSidebar} alt="Logo" className="h-12 w-auto object-contain" />
                   <div>
-                    <h1 className="text-4xl font-black tracking-tighter text-slate-900 leading-none mb-1">
+                    <h1 className="text-3xl lg:text-4xl font-black tracking-tighter text-slate-900 leading-none mb-1">
                       Eco<span className="text-emerald-600">Synergy</span>
                     </h1>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Circular Systems Hub</p>
                   </div>
                 </div>
-                <h2 className="text-2xl font-black text-slate-800 mb-2 leading-tight">
+                <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 mb-2 leading-tight">
                   Future-Ready Farm Modeling
                 </h2>
-                <p className="text-sm text-slate-500 max-w-2xl leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
                   Unlock the hidden value in your farm's ecosystem. Model energy, water, and waste flows to achieve climate-positive operations at <span className="text-slate-800 font-bold underline decoration-emerald-200 underline-offset-4">{inputs.location}</span>.
                 </p>
               </div>
 
-              <div className="flex flex-col items-end gap-4">
-                <div className="glass-card rounded-[2rem] p-1 shadow-xl border-white/60">
+              <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-4 w-full lg:w-auto">
+                <div className="glass-card rounded-[1.5rem] sm:rounded-[2rem] p-1 shadow-xl border-white/60 w-full sm:w-auto overflow-x-auto">
                   <WeatherDisplay
                     location={inputs.location}
                     temperature={weather.temperature}
                     humidity={weather.humidity}
                   />
                 </div>
-                <div className="flex gap-2">
-                  <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-[10px] font-bold rounded-full border border-emerald-100 uppercase tracking-wider">
+                <div className="flex gap-2 w-full lg:justify-end">
+                  <span className="px-3 py-1 bg-emerald-50 text-emerald-700 text-[9px] sm:text-[10px] font-bold rounded-full border border-emerald-100 uppercase tracking-wider">
                     {weather.coordinates?.lat}, {weather.coordinates?.lng}
                   </span>
-                  <span className="px-3 py-1 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full border border-amber-100 uppercase tracking-wider">
+                  <span className="px-3 py-1 bg-amber-50 text-amber-700 text-[9px] sm:text-[10px] font-bold rounded-full border border-amber-100 uppercase tracking-wider font-mono">
                     {solarIrradiance} kWh/m²/day
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Location Map: Increased height for better visibility as requested */}
-            <div className="glass-card rounded-[2.5rem] overflow-hidden shadow-2xl border-white/40 h-[420px] mb-10 group relative">
+            {/* Location Map: Responsive height */}
+            <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-white/40 h-[250px] sm:h-[350px] lg:h-[420px] mb-8 lg:mb-12 group relative">
               <div className="absolute top-4 left-6 z-20 pointer-events-none">
-                <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-[10px] font-black rounded-full border border-white shadow-lg uppercase tracking-widest flex items-center gap-2">
+                <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-[9px] sm:text-[10px] font-black rounded-full border border-white shadow-lg uppercase tracking-widest flex items-center gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                   Live Satellite View
                 </span>
@@ -261,10 +283,10 @@ function App() {
           </header>
 
           {/* 2. Stats Section: Three Cards */}
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-6">
+          <section className="mb-10 sm:mb-12">
+            <div className="flex items-center gap-3 mb-6 px-1 lg:px-0">
               <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
-              <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">System Performance</h3>
+              <h3 className="text-lg lg:text-xl font-black text-slate-900 uppercase tracking-tight">System Performance</h3>
             </div>
             <KPICards
               financialSavings={financialSavings}
@@ -274,18 +296,18 @@ function App() {
           </section>
 
           {/* 3. Graphs and Insight Analysis Section */}
-          <section className="mb-12">
-            <div className="flex items-center gap-3 mb-8">
+          <section className="mb-10 sm:mb-12">
+            <div className="flex items-center gap-3 mb-8 px-1 lg:px-0">
               <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
               <div className="flex flex-col">
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Insight Analytics</h3>
+                <h3 className="text-lg lg:text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Insight Analytics</h3>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time optimization data</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 mb-8">
               {/* Secondary Insight Cards integrated into Analysis Section */}
-              <div className="flex flex-col gap-6">
+              <div className="flex flex-col gap-6 order-2 lg:order-1">
                 <div className="glass-card rounded-[2rem] shadow-xl border-white/50 overflow-hidden transform transition-all hover:scale-[1.02]">
                   <DigestateCard digestateLiters={digestateLiters} digestateSavingsEur={digestateSavingsEur} />
                 </div>
@@ -295,7 +317,7 @@ function App() {
 
                 {/* Warnings and Notes moved here to be part of "Insight Analysis" */}
                 <RecipeCheckWarning recipeCheck={recipeCheck} />
-                <div className="glass-card rounded-2xl p-5 shadow-sm border-amber-100/50 bg-amber-50/20">
+                <div className="glass-card rounded-2xl p-4 sm:p-5 shadow-sm border-amber-100/50 bg-amber-50/20">
                   <ParasiticLoadNote
                     winterTempC={winterTempC}
                     parasiticFraction={parasiticFraction}
@@ -306,7 +328,7 @@ function App() {
               </div>
 
               {/* Main Charts */}
-              <div className="lg:col-span-2 glass-card rounded-[2.5rem] p-6 shadow-2xl border-white/60 bg-white/40 backdrop-blur-sm">
+              <div className="lg:col-span-2 glass-card rounded-[2rem] lg:rounded-[2.5rem] p-4 sm:p-6 shadow-2xl border-white/60 bg-white/40 backdrop-blur-sm order-1 lg:order-2">
                 <Charts
                   biogasEnergy={biogasEnergy}
                   solarEnergy={solarEnergy}
@@ -322,39 +344,39 @@ function App() {
             </div>
 
             {annualBiogasM3 > 0 && (
-              <div className="mb-10 p-6 bg-emerald-600 rounded-[2rem] shadow-xl shadow-emerald-200/50 text-white flex flex-col md:flex-row items-center gap-6 transform transition-all hover:scale-[1.01]">
-                <div className="w-14 h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <div className="mb-10 p-5 sm:p-6 bg-emerald-600 rounded-[2rem] shadow-xl shadow-emerald-200/50 text-white flex flex-col md:flex-row items-center gap-4 sm:gap-6 transform transition-all hover:scale-[1.01]">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/30 flex-shrink-0">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                     <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
                   </svg>
                 </div>
-                <div>
-                  <h4 className="text-lg font-black mb-1 italic">Climate Impact Milestone</h4>
-                  <p className="text-emerald-50 text-sm font-medium leading-relaxed">
-                    By switching from <strong>{inputs.manureManagement === 'open_lagoon' ? 'Open Lagoon' : 'Field Spreading'}</strong> to controlled digestion, you are avoiding <span className="bg-white text-emerald-700 px-3 py-1 rounded-full font-black mx-1 inline-block">{methaneSavingsCo2e} tons CO₂e</span> of methane emissions annually.
+                <div className="text-center md:text-left">
+                  <h4 className="text-base sm:text-lg font-black mb-1 italic">Climate Impact Milestone</h4>
+                  <p className="text-emerald-50 text-[11px] sm:text-sm font-medium leading-relaxed">
+                    By switching from <strong>{inputs.manureManagement === 'open_lagoon' ? 'Open Lagoon' : 'Field Spreading'}</strong> to controlled digestion, you are avoiding <span className="bg-white text-emerald-700 px-3 py-1 rounded-full font-black mx-1 inline-block whitespace-nowrap">{methaneSavingsCo2e} tons CO₂e</span> of methane emissions annually.
                   </p>
                 </div>
               </div>
             )}
 
-            {/* Scenario Control integrated at the bottom of Analysis */}
-            <div className="glass-card rounded-[2rem] p-8 shadow-2xl border-emerald-100/40 relative overflow-hidden group">
+            {/* Scenario Control */}
+            <div className="glass-card rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 shadow-2xl border-emerald-100/40 relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-80 h-80 bg-emerald-400/5 rounded-full -mr-40 -mt-40 blur-3xl transition-all group-hover:bg-emerald-400/10" />
-              <div className="relative flex flex-col md:flex-row items-center justify-between gap-8">
-                <div className="flex-1 text-center md:text-left">
-                  <div className="flex items-center gap-2 mb-2 justify-center md:justify-start">
+              <div className="relative flex flex-col lg:flex-row items-center justify-between gap-6 lg:gap-8 text-center lg:text-left">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2 justify-center lg:justify-start">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <h3 className="text-2xl font-black text-slate-900 italic">Advanced Scenario Control</h3>
+                    <h3 className="text-xl lg:text-2xl font-black text-slate-900 italic uppercase">Scenario Control</h3>
                   </div>
-                  <p className="text-sm text-slate-500 max-w-md">
-                    Lock in your current variables to establish a performance baseline, then experiment with parameters to find your farm's optimal ecosystem balance.
+                  <p className="text-[11px] sm:text-sm text-slate-500 max-w-md mx-auto lg:mx-0">
+                    Lock in your variables to establish a performance baseline, then experiment with parameters to find your farm's optimal ecosystem balance.
                   </p>
                 </div>
-                <div className="flex flex-col items-center gap-4">
+                <div className="flex flex-col items-center gap-4 w-full lg:w-auto">
                   <button
                     type="button"
                     onClick={saveAsBaseline}
-                    className="px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-black text-base font-black transition-all shadow-xl shadow-slate-200 active:scale-95 flex items-center gap-3"
+                    className="w-full lg:w-auto px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-black text-sm lg:text-base font-black transition-all shadow-xl shadow-slate-200 active:scale-95 flex items-center justify-center gap-3"
                   >
                     <span>SAVE BASELINE</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -364,9 +386,9 @@ function App() {
                     </svg>
                   </button>
                   {baselineInputs && (
-                    <div className="px-5 py-2.5 bg-emerald-50 rounded-xl text-xs font-black text-emerald-700 border border-emerald-100 flex items-center gap-2">
+                    <div className="px-4 py-2 bg-emerald-50 rounded-xl text-[10px] font-black text-emerald-700 border border-emerald-100 flex items-center gap-2 whitespace-nowrap">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                      ACTIVE COMPARISON: {baselineInputs.cows} COWS / {baselineInputs.solarArea}m² SOLAR
+                      ACTIVE COMPARISON ON
                     </div>
                   )}
                 </div>
@@ -375,7 +397,7 @@ function App() {
           </section>
 
           {/* Footer: Assumptions and Sources */}
-          <footer className="mt-20 pt-10 border-t border-slate-100">
+          <footer className="mt-12 lg:mt-20 pt-8 sm:pt-10 border-t border-slate-100">
             <Assumptions />
           </footer>
         </div>
