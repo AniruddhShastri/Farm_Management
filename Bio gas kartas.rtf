@@ -1,0 +1,608 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2868
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 classdef thesisapp < matlab.apps.AppBase\
+\
+    % Properties that correspond to app components\
+    properties (Access = public)\
+        UIFigure                       matlab.ui.Figure\
+        ClickButton                    matlab.ui.control.Button\
+        CanyoubringinmorebiomassButtonGroup  matlab.ui.container.ButtonGroup\
+        NOButton                       matlab.ui.control.RadioButton\
+        YESButton                      matlab.ui.control.RadioButton\
+        EnterhourlyloadinExcelLabel    matlab.ui.control.Label\
+        Label_4                        matlab.ui.control.Label\
+        Label_3                        matlab.ui.control.Label\
+        GoButton                       matlab.ui.control.Button\
+        ChoicesifinsufficientbiomassButtonGroup  matlab.ui.container.ButtonGroup\
+        UseDieselGeneratorButton       matlab.ui.control.RadioButton\
+        AddmorebiomassButton           matlab.ui.control.RadioButton\
+        TimeEditField                  matlab.ui.control.NumericEditField\
+        TimeEditFieldLabel             matlab.ui.control.Label\
+        DatePicker                     matlab.ui.control.DatePicker\
+        DatePickerLabel                matlab.ui.control.Label\
+        Label_2                        matlab.ui.control.Label\
+        Comparison                     matlab.ui.control.Label\
+        orLabel                        matlab.ui.control.Label\
+        AmountofbiomasstonsperdayEditField  matlab.ui.control.NumericEditField\
+        AmountofbiomasstonsperdayEditFieldLabel  matlab.ui.control.Label\
+        Label                          matlab.ui.control.Label\
+        HybridRESRenewableEnergySourceCalculatorLabel  matlab.ui.control.Label\
+        ClearButton                    matlab.ui.control.Button\
+        CattleManureTypeDropDown       matlab.ui.control.DropDown\
+        CattleManureTypeDropDownLabel  matlab.ui.control.Label\
+        PowerGeneratedLabel            matlab.ui.control.Label\
+        ConvertintokWhButton           matlab.ui.control.Button\
+        NumberofanimalsEditField       matlab.ui.control.NumericEditField\
+        NumberofanimalsEditFieldLabel  matlab.ui.control.Label\
+    end\
+\
+    % Callbacks that handle component events\
+    methods (Access = private)\
+\
+        % Button pushed function: ConvertintokWhButton\
+        function ConvertintokWhButtonPushed(app, event)\
+\
+            %['load', "C:\\Users\\karth\\Desktop\\load.csv"] = uigetfile(\{'*.xlsx', 'Excel Files'\}, 'Select Data Excel File');\
+\
+            file = fullfile("C:\\Users\\karth\\Desktop\\yearlyload.xlsx");\
+            data = readmatrix(file);\
+            PVData = data(:, 1); % Assuming PV data is in the third column\
+            LoadData = data(:, 2); % Assuming load data is in the second column\
+           \
+            % Get user inputs from the edit fields\
+            numAnimals = app.NumberofanimalsEditField.Value;\
+            amount = app.AmountofbiomasstonsperdayEditField.Value;\
+            selectedDate = app.DatePicker.Value;\
+            selectedTime = app.TimeEditField.Value;\
+\
+            daysSinceJan1 = days(datetime(selectedDate) - datetime(year(selectedDate), 1, 1)) + 1;\
+            startRow = (daysSinceJan1 - 1) * 24 + 1;\
+            \
+            endRow = startRow + selectedTime - 1;\
+\
+            if endRow > size(data, 1) \
+                uialert(app.UIFigure, 'Selected date and time exceed data range in the Excel sheet.', 'Error', 'Icon', 'error');\
+                return;\
+            end\
+\
+            PVDataSelectedDay = PVData(startRow:endRow);\
+            LoadDataSelectedDay = LoadData(startRow:endRow);\
+\
+            PVDataUntilSelectedTime = sum(PVDataSelectedDay(1:selectedTime));\
+            LoadDataUntilSelectedTime = sum(LoadDataSelectedDay(1:selectedTime));\
+\
+            PV_kWh = PVDataUntilSelectedTime/1000;\
+            Load_kWh = LoadDataUntilSelectedTime/1000;\
+\
+            % Determine energy produced based on animal type\
+            animalType = app.CattleManureTypeDropDown.Value;\
+            \
+            if strcmp(animalType, 'Dairy')\
+              if numAnimals ~= 0 && amount == 0\
+                % Calculate energy based on number of animals\
+                B = numAnimals * 0.03 * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+              elseif numAnimals == 0 && amount ~= 0\
+                % Calculate energy based on biomass amount\
+                B = amount * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+              else\
+                % Display an error message if both or none of the fields have values\
+                uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                return;  % Exit the function without further calculations\
+              end\
+            elseif strcmp(animalType, 'Beef')\
+                if numAnimals ~= 0 && amount == 0\
+                 B = numAnimals * 0.029* 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                 app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                elseif numAnimals == 0 && amount ~= 0\
+                 B = amount * 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                 app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                else\
+                % Display an error message if both or none of the fields have values\
+                 uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                 return;  % Exit the function without further calculations\
+                end\
+            elseif strcmp(animalType, 'Feedlot')\
+                if numAnimals ~= 0 && amount == 0\
+                 B = numAnimals * 0.03 * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                 app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                elseif numAnimals == 0 && amount ~= 0\
+                 B = amount * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                 app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                else\
+                % Display an error message if both or none of the fields have values\
+                 uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                 return;  % Exit the function without further calculations\
+                end\
+            end\
+\
+            % Calculate power generated\
+            E = B * 22626 * 0.0002973071 * 0.4;\
+\
+            % Display the calculated power in the label\
+            app.PowerGeneratedLabel.Text = sprintf('Electricity generated from biogas for this day: %.2f kWh', E);\
+       \
+            % Check if remainingBiogasPower is negative \
+            % Calculate remaining biogas power\
+            \
+            if PV_kWh >= Load_kWh\
+                app.Label_3.Text = 'Solar power can satisfy the load, no need for biogas generator.';\
+                app.Comparison.Text = sprintf('Surplus solar: %.2f kWh', PV_kWh - Load_kWh);\
+                app.Label_4.Text = '';\
+                app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'off';\
+            else\
+                % Biogas is needed\
+                biogasPowerNeeded = Load_kWh - PV_kWh;\
+\
+                % You should already have E (biogas power available) from your earlier calculation\
+                remainingBiogasPower = E - biogasPowerNeeded;\
+\
+                if remainingBiogasPower < 0\
+                    app.Comparison.Text = 'Biomass is insufficient. Choose one of the options.';\
+                    app.Label_3.Text = '';\
+                    app.Label_4.Text = '';\
+                    app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'on';\
+                else\
+                    app.Label_3.Text = 'Connect biogas power system in synchronous mode.';\
+                    app.Comparison.Text = sprintf('Remaining Biogas Power: %.2f kWh', remainingBiogasPower);\
+                    app.Label_4.Text = sprintf('Biogas power used: %.2f kWh', biogasPowerNeeded);\
+                    app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'off';\
+                end\
+            end\
+        end\
+\
+        % Button pushed function: ClearButton\
+        function ClearButtonPushed(app, event)\
+\
+            app.NumberofanimalsEditField.Value = 0;\
+            app.AmountofbiomasstonsperdayEditField.Value = 0;\
+            %app.DatePicker.Value = [];\
+            app.TimeEditField.Value = 0;\
+            app.PowerGeneratedLabel.Text = 'Click the "Convert into kWh" button to calculate electricity generated';\
+            app.Comparison.Text = '';\
+            app.Label.Text = '';\
+            app.Label_2.Text = '';\
+            app.Label_3.Text = '';\
+            app.Label_4.Text = '';\
+        end\
+\
+        % Button pushed function: GoButton\
+        function GoButtonPushed(app, event)\
+            file = fullfile("C:\\Users\\karth\\Desktop\\yearlyload.xlsx");\
+            data = readmatrix(file);\
+            PVData = data(:, 1); % Assuming PV data is in the first column\
+            LoadData = data(:, 2); % Assuming load data is in the second column\
+\
+            % Get user inputs from the edit fields\
+            numAnimals = app.NumberofanimalsEditField.Value;\
+            amount = app.AmountofbiomasstonsperdayEditField.Value;\
+            selectedDate = app.DatePicker.Value;\
+            selectedTime = app.TimeEditField.Value;\
+\
+            daysSinceJan1 = days(datetime(selectedDate) - datetime(year(selectedDate), 1, 1)) + 1;\
+            startRow = (daysSinceJan1 - 1) * 24 + 1;\
+            endRow = startRow + 23;\
+\
+            if endRow > size(data, 1)\
+               uialert(app.UIFigure, 'Selected date and time exceed data range in the Excel sheet.', 'Error', 'Icon', 'error');\
+                return;\
+            end\
+\
+            PVDataSelectedDay = PVData(startRow:endRow);\
+            LoadDataSelectedDay = LoadData(startRow:endRow);\
+\
+            PVDataUntilSelectedTime = sum(PVDataSelectedDay(1:selectedTime));\
+            LoadDataUntilSelectedTime = sum(LoadDataSelectedDay(1:selectedTime));\
+\
+            PV_kWh = PVDataUntilSelectedTime/1000;\
+            Load_kWh = LoadDataUntilSelectedTime/1000;\
+\
+            % Determine energy produced based on animal type\
+            animalType = app.CattleManureTypeDropDown.Value;\
+\
+            if strcmp(animalType, 'Dairy')\
+                if numAnimals ~= 0 && amount == 0\
+                    % Calculate energy based on number of animals\
+                    B = numAnimals * 0.03 * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                elseif numAnimals == 0 && amount ~= 0\
+                    % Calculate energy based on biomass amount\
+                    B = amount * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                else\
+                    % Display an error message if both or none of the fields have values\
+                    uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                    return;  % Exit the function without further calculations\
+                end\
+            elseif strcmp(animalType, 'Beef')\
+                if numAnimals ~= 0 && amount == 0\
+                    B = numAnimals * 0.029 * 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                elseif numAnimals == 0 && amount ~= 0\
+                    B = amount * 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                else\
+                    % Display an error message if both or none of the fields have values\
+                    uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                    return;  % Exit the function without further calculations\
+                end\
+            elseif strcmp(animalType, 'Feedlot')\
+                if numAnimals ~= 0 && amount == 0\
+                    B = numAnimals * 0.03 * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                elseif numAnimals == 0 && amount ~= 0\
+                    B = amount * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                else\
+                    % Display an error message if both or none of the fields have values\
+                    uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                    return;  % Exit the function without further calculations\
+                end\
+            end\
+\
+            % Calculate power generated\
+            E = B * 22626 * 0.0002973071 * 0.35;\
+\
+            % Handle insufficient biogas power scenario\
+\
+            if PV_kWh >= Load_kWh\
+                app.Label_3.Text = 'Solar power can satisfy the load, no need for biogas generator.';\
+                app.Comparison.Text = sprintf('Surplus solar: %.2f kWh', PV_kWh - Load_kWh);\
+                app.Label_4.Text = '';\
+                app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'off';\
+            else\
+                % Biogas is needed\
+                biogasPowerNeeded = Load_kWh - PV_kWh;\
+\
+                % You should already have E (biogas power available) from your earlier calculation\
+                remainingBiogasPower = E - biogasPowerNeeded;\
+\
+\
+                if remainingBiogasPower < 0\
+                    extraPowerNeeded = abs(remainingBiogasPower);\
+\
+                    if app.AddmorebiomassButton.Value\
+                        % Calculate additional biomass required\
+                        Biogasrequired = extraPowerNeeded / (22626 * 0.0002973071 * 0.4);\
+                        additionalBiomass = Biogasrequired / (0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497)));\
+                        app.Comparison.Text = sprintf('Add %.2f tons of biomass to meet the power demand.', additionalBiomass);\
+\
+                        uialert(app.UIFigure, 'Do you have the necessary resources to bring in the biomass?', 'Resource Check', 'Icon', 'question');\
+\
+                    elseif app.UseDieselGeneratorButton.Value\
+                        % Display message to use diesel generator\
+                        app.Comparison.Text = sprintf('Use diesel generator to produce %.2f kWh of energy.', extraPowerNeeded);\
+                    end\
+                else\
+                    app.Label.Text = 'Biogas generator can supply power for the entire day.';\
+                end\
+\
+                % Display error message if something goes wrong\
+                %uialert(app.UIFigure, ME.message, 'Error', 'Icon', 'error');\
+            end\
+\
+        end\
+\
+        % Button pushed function: ClickButton\
+        function ClickButtonPushed(app, event)\
+            if app.YESButton.Value\
+                uialert(app.UIFigure, 'Congratulations you have satisfied the power demand!', 'Success', 'Icon', 'success');\
+            elseif app.NOButton.Value\
+                file = fullfile("C:\\Users\\karth\\Desktop\\yearlyload.xlsx");\
+                data = readmatrix(file);\
+                PVData = data(:, 1); % Assuming PV data is in the first column\
+                LoadData = data(:, 2); % Assuming load data is in the second column\
+\
+                selectedDate = app.DatePicker.Value;\
+                numAnimals = app.NumberofanimalsEditField.Value;\
+                amount = app.AmountofbiomasstonsperdayEditField.Value;\
+                selectedTime = app.TimeEditField.Value;\
+\
+                daysSinceJan1 = days(datetime(selectedDate) - datetime(year(selectedDate), 1, 1)) + 1;\
+                startRow = (daysSinceJan1 - 1) * 24 + 1;\
+                endRow = startRow + 23;\
+\
+                if endRow > size(data, 1)\
+                    uialert(app.UIFigure, 'Selected date and time exceed data range in the Excel sheet.', 'Error', 'Icon', 'error');\
+                    return;\
+                end\
+\
+                PVDataSelectedDay = PVData(startRow:endRow);\
+                LoadDataSelectedDay = LoadData(startRow:endRow);\
+\
+                PVDataUntilSelectedTime = sum(PVDataSelectedDay(1:selectedTime));\
+                LoadDataUntilSelectedTime = sum(LoadDataSelectedDay(1:selectedTime));\
+\
+                PV_kWh = PVDataUntilSelectedTime/1000;\
+                Load_kWh = LoadDataUntilSelectedTime/1000;\
+\
+                animalType = app.CattleManureTypeDropDown.Value;\
+\
+                if strcmp(animalType, 'Dairy')\
+                    if numAnimals ~= 0 && amount == 0\
+                        % Calculate energy based on number of animals\
+                        B = numAnimals * 0.03 * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    elseif numAnimals == 0 && amount ~= 0\
+                        % Calculate energy based on biomass amount\
+                        B = amount * 0.18 * ((0.396 * 400) + (0.16 * 0.181 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    else\
+                        % Display an error message if both or none of the fields have values\
+                        uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                        return;  % Exit the function without further calculations\
+                    end\
+                elseif strcmp(animalType, 'Beef')\
+                    if numAnimals ~= 0 && amount == 0\
+                        B = numAnimals * 0.029* 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    elseif numAnimals == 0 && amount ~= 0\
+                        B = amount * 0.18 * ((0.393 * 400) + (0.16 * 0.121 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    else\
+                        % Display an error message if both or none of the fields have values\
+                        uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                        return;  % Exit the function without further calculations\
+                    end\
+                elseif strcmp(animalType, 'Feedlot')\
+                    if numAnimals ~= 0 && amount == 0\
+                        B = numAnimals * 0.03 * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    elseif numAnimals == 0 && amount ~= 0\
+                        B = amount * 0.18 * ((0.356 * 400) + (0.16 * 0.17 * 497));\
+                        app.Label.Text = sprintf('Methane generated: %.2f m^3', B);\
+                    else\
+                        % Display an error message if both or none of the fields have values\
+                        uialert(app.UIFigure, 'Please enter values in either Number of animals or Amount of biomass.', 'Error', 'Icon', 'error');\
+                        return;  % Exit the function without further calculations\
+                    end\
+                end\
+\
+                % Calculate power generated\
+                E = B * 22626 * 0.0002973071 * 0.35;\
+\
+                biogasPowerNeeded = Load_kWh - PV_kWh;\
+\
+                % You should already have E (biogas power available) from your earlier calculation\
+                remainingBiogasPower = E - biogasPowerNeeded;\
+\
+                if remainingBiogasPower < 0\
+                    % Biogas is insufficient, calculate how much load reduction is needed\
+                    reductionPercentage = ((biogasPowerNeeded - E) / biogasPowerNeeded) * 100;\
+                    app.Label_3.Text = '';\
+                    app.Label_4.Text = '';\
+                    app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'on';\
+                    app.Comparison.Text = sprintf('Reduce the load by %.2f%% to match available biogas energy.', reductionPercentage);\
+                else\
+                    % Biogas is sufficient\
+                    app.Label_3.Text = 'Connect biogas power system in synchronous mode.';\
+                    app.Comparison.Text = sprintf('Remaining Biogas Power: %.2f kWh', remainingBiogasPower);\
+                    app.Label_4.Text = sprintf('Biogas power used: %.2f kWh', biogasPowerNeeded);\
+                    app.ChoicesifinsufficientbiomassButtonGroup.Enable = 'off';\
+                end\
+            end\
+\
+        end\
+    end\
+\
+    % Component initialization\
+    methods (Access = private)\
+\
+        % Create UIFigure and components\
+        function createComponents(app)\
+\
+            % Create UIFigure and hide until all components are created\
+            app.UIFigure = uifigure('Visible', 'off');\
+            app.UIFigure.Position = [100 100 769 578];\
+            app.UIFigure.Name = 'MATLAB App';\
+\
+            % Create NumberofanimalsEditFieldLabel\
+            app.NumberofanimalsEditFieldLabel = uilabel(app.UIFigure);\
+            app.NumberofanimalsEditFieldLabel.HorizontalAlignment = 'center';\
+            app.NumberofanimalsEditFieldLabel.FontWeight = 'bold';\
+            app.NumberofanimalsEditFieldLabel.Position = [247 384 113 22];\
+            app.NumberofanimalsEditFieldLabel.Text = 'Number of animals';\
+\
+            % Create NumberofanimalsEditField\
+            app.NumberofanimalsEditField = uieditfield(app.UIFigure, 'numeric');\
+            app.NumberofanimalsEditField.HorizontalAlignment = 'center';\
+            app.NumberofanimalsEditField.Position = [371 384 100 22];\
+\
+            % Create ConvertintokWhButton\
+            app.ConvertintokWhButton = uibutton(app.UIFigure, 'push');\
+            app.ConvertintokWhButton.ButtonPushedFcn = createCallbackFcn(app, @ConvertintokWhButtonPushed, true);\
+            app.ConvertintokWhButton.FontWeight = 'bold';\
+            app.ConvertintokWhButton.Position = [356 281 129 22];\
+            app.ConvertintokWhButton.Text = 'Convert into kWh';\
+\
+            % Create PowerGeneratedLabel\
+            app.PowerGeneratedLabel = uilabel(app.UIFigure);\
+            app.PowerGeneratedLabel.HorizontalAlignment = 'center';\
+            app.PowerGeneratedLabel.FontWeight = 'bold';\
+            app.PowerGeneratedLabel.Position = [190 212 409 22];\
+            app.PowerGeneratedLabel.Text = '';\
+\
+            % Create CattleManureTypeDropDownLabel\
+            app.CattleManureTypeDropDownLabel = uilabel(app.UIFigure);\
+            app.CattleManureTypeDropDownLabel.HorizontalAlignment = 'center';\
+            app.CattleManureTypeDropDownLabel.FontWeight = 'bold';\
+            app.CattleManureTypeDropDownLabel.Position = [247 424 115 22];\
+            app.CattleManureTypeDropDownLabel.Text = 'Cattle Manure Type';\
+\
+            % Create CattleManureTypeDropDown\
+            app.CattleManureTypeDropDown = uidropdown(app.UIFigure);\
+            app.CattleManureTypeDropDown.Items = \{'Dairy', 'Beef', 'Feedlot'\};\
+            app.CattleManureTypeDropDown.Position = [371 424 100 22];\
+            app.CattleManureTypeDropDown.Value = 'Dairy';\
+\
+            % Create ClearButton\
+            app.ClearButton = uibutton(app.UIFigure, 'push');\
+            app.ClearButton.ButtonPushedFcn = createCallbackFcn(app, @ClearButtonPushed, true);\
+            app.ClearButton.FontWeight = 'bold';\
+            app.ClearButton.Position = [371 245 100 22];\
+            app.ClearButton.Text = 'Clear';\
+\
+            % Create HybridRESRenewableEnergySourceCalculatorLabel\
+            app.HybridRESRenewableEnergySourceCalculatorLabel = uilabel(app.UIFigure);\
+            app.HybridRESRenewableEnergySourceCalculatorLabel.FontSize = 16;\
+            app.HybridRESRenewableEnergySourceCalculatorLabel.FontWeight = 'bold';\
+            app.HybridRESRenewableEnergySourceCalculatorLabel.Position = [183 547 399 22];\
+            app.HybridRESRenewableEnergySourceCalculatorLabel.Text = 'Hybrid RES (Renewable Energy Source) Calculator';\
+\
+            % Create Label\
+            app.Label = uilabel(app.UIFigure);\
+            app.Label.Position = [313 191 211 22];\
+            app.Label.Text = '';\
+\
+            % Create AmountofbiomasstonsperdayEditFieldLabel\
+            app.AmountofbiomasstonsperdayEditFieldLabel = uilabel(app.UIFigure);\
+            app.AmountofbiomasstonsperdayEditFieldLabel.HorizontalAlignment = 'center';\
+            app.AmountofbiomasstonsperdayEditFieldLabel.FontWeight = 'bold';\
+            app.AmountofbiomasstonsperdayEditFieldLabel.Position = [159 326 201 22];\
+            app.AmountofbiomasstonsperdayEditFieldLabel.Text = 'Amount of biomass (tons per day)';\
+\
+            % Create AmountofbiomasstonsperdayEditField\
+            app.AmountofbiomasstonsperdayEditField = uieditfield(app.UIFigure, 'numeric');\
+            app.AmountofbiomasstonsperdayEditField.HorizontalAlignment = 'center';\
+            app.AmountofbiomasstonsperdayEditField.Position = [371 326 100 22];\
+\
+            % Create orLabel\
+            app.orLabel = uilabel(app.UIFigure);\
+            app.orLabel.HorizontalAlignment = 'center';\
+            app.orLabel.FontSize = 14;\
+            app.orLabel.FontWeight = 'bold';\
+            app.orLabel.Position = [341 355 28 22];\
+            app.orLabel.Text = '(or)';\
+\
+            % Create Comparison\
+            app.Comparison = uilabel(app.UIFigure);\
+            app.Comparison.HorizontalAlignment = 'center';\
+            app.Comparison.Position = [168 140 436 32];\
+            app.Comparison.Text = '';\
+\
+            % Create Label_2\
+            app.Label_2 = uilabel(app.UIFigure);\
+            app.Label_2.HorizontalAlignment = 'center';\
+            app.Label_2.FontWeight = 'bold';\
+            app.Label_2.FontColor = [0.3922 0.8314 0.0745];\
+            app.Label_2.Position = [222 102 327 22];\
+            app.Label_2.Text = '';\
+\
+            % Create DatePickerLabel\
+            app.DatePickerLabel = uilabel(app.UIFigure);\
+            app.DatePickerLabel.HorizontalAlignment = 'right';\
+            app.DatePickerLabel.FontWeight = 'bold';\
+            app.DatePickerLabel.Position = [254 498 70 22];\
+            app.DatePickerLabel.Text = 'Date Picker';\
+\
+            % Create DatePicker\
+            app.DatePicker = uidatepicker(app.UIFigure);\
+            app.DatePicker.Position = [339 498 150 22];\
+\
+            % Create TimeEditFieldLabel\
+            app.TimeEditFieldLabel = uilabel(app.UIFigure);\
+            app.TimeEditFieldLabel.HorizontalAlignment = 'right';\
+            app.TimeEditFieldLabel.FontWeight = 'bold';\
+            app.TimeEditFieldLabel.Position = [321 465 33 22];\
+            app.TimeEditFieldLabel.Text = 'Time';\
+\
+            % Create TimeEditField\
+            app.TimeEditField = uieditfield(app.UIFigure, 'numeric');\
+            app.TimeEditField.Position = [369 465 100 22];\
+\
+            % Create ChoicesifinsufficientbiomassButtonGroup\
+            app.ChoicesifinsufficientbiomassButtonGroup = uibuttongroup(app.UIFigure);\
+            app.ChoicesifinsufficientbiomassButtonGroup.TitlePosition = 'centertop';\
+            app.ChoicesifinsufficientbiomassButtonGroup.Title = 'Choices if insufficient biomass';\
+            app.ChoicesifinsufficientbiomassButtonGroup.Position = [548 449 177 71];\
+\
+            % Create AddmorebiomassButton\
+            app.AddmorebiomassButton = uiradiobutton(app.ChoicesifinsufficientbiomassButtonGroup);\
+            app.AddmorebiomassButton.Text = 'Add more biomass';\
+            app.AddmorebiomassButton.Position = [11 25 121 22];\
+            app.AddmorebiomassButton.Value = true;\
+\
+            % Create UseDieselGeneratorButton\
+            app.UseDieselGeneratorButton = uiradiobutton(app.ChoicesifinsufficientbiomassButtonGroup);\
+            app.UseDieselGeneratorButton.Text = 'Use Diesel Generator';\
+            app.UseDieselGeneratorButton.Position = [11 3 137 22];\
+\
+            % Create GoButton\
+            app.GoButton = uibutton(app.UIFigure, 'push');\
+            app.GoButton.ButtonPushedFcn = createCallbackFcn(app, @GoButtonPushed, true);\
+            app.GoButton.FontWeight = 'bold';\
+            app.GoButton.Position = [587 407 100 22];\
+            app.GoButton.Text = 'Go';\
+\
+            % Create Label_3\
+            app.Label_3 = uilabel(app.UIFigure);\
+            app.Label_3.FontWeight = 'bold';\
+            app.Label_3.Position = [235 81 406 22];\
+            app.Label_3.Text = '';\
+\
+            % Create Label_4\
+            app.Label_4 = uilabel(app.UIFigure);\
+            app.Label_4.FontWeight = 'bold';\
+            app.Label_4.Position = [313 42 202 22];\
+            app.Label_4.Text = '';\
+\
+            % Create EnterhourlyloadinExcelLabel\
+            app.EnterhourlyloadinExcelLabel = uilabel(app.UIFigure);\
+            app.EnterhourlyloadinExcelLabel.BackgroundColor = [1 1 0];\
+            app.EnterhourlyloadinExcelLabel.HorizontalAlignment = 'center';\
+            app.EnterhourlyloadinExcelLabel.FontWeight = 'bold';\
+            app.EnterhourlyloadinExcelLabel.Position = [16 410 152 22];\
+            app.EnterhourlyloadinExcelLabel.Text = 'Enter hourly load in Excel';\
+\
+            % Create CanyoubringinmorebiomassButtonGroup\
+            app.CanyoubringinmorebiomassButtonGroup = uibuttongroup(app.UIFigure);\
+            app.CanyoubringinmorebiomassButtonGroup.Title = 'Can you bring in more biomass?';\
+            app.CanyoubringinmorebiomassButtonGroup.Position = [544 311 186 74];\
+\
+            % Create YESButton\
+            app.YESButton = uiradiobutton(app.CanyoubringinmorebiomassButtonGroup);\
+            app.YESButton.Text = 'YES';\
+            app.YESButton.Position = [55 30 58 22];\
+            app.YESButton.Value = true;\
+\
+            % Create NOButton\
+            app.NOButton = uiradiobutton(app.CanyoubringinmorebiomassButtonGroup);\
+            app.NOButton.Text = 'NO';\
+            app.NOButton.Position = [55 9 65 22];\
+\
+            % Create ClickButton\
+            app.ClickButton = uibutton(app.UIFigure, 'push');\
+            app.ClickButton.ButtonPushedFcn = createCallbackFcn(app, @ClickButtonPushed, true);\
+            app.ClickButton.Position = [590 279 100 22];\
+            app.ClickButton.Text = 'Click';\
+\
+            % Show the figure after all components are created\
+            app.UIFigure.Visible = 'on';\
+        end\
+    end\
+\
+    % App creation and deletion\
+    methods (Access = public)\
+\
+        % Construct app\
+        function app = thesisapp\
+\
+            % Create UIFigure and components\
+            createComponents(app)\
+\
+            % Register the app with App Designer\
+            registerApp(app, app.UIFigure)\
+\
+            if nargout == 0\
+                clear app\
+            end\
+        end\
+\
+        % Code that executes before app deletion\
+        function delete(app)\
+\
+            % Delete UIFigure when app is deleted\
+            delete(app.UIFigure)\
+        end\
+    end\
+end}

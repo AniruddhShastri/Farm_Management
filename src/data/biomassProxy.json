@@ -1,0 +1,56 @@
+{
+  "description": "Generic feedstock buckets for biogas. Users can map crops to these when exact crop is not in the database.",
+  "buckets": {
+    "dry_straw": {
+      "name": "Dry / Straw",
+      "description": "Straw, hay, crop residues (wheat, barley, rice straw)",
+      "c_n_ratio": 80,
+      "biogas_yield_m3_per_ton_fresh": 200,
+      "dry_matter_percent": 85,
+      "acidification_risk": "low",
+      "typical_crops": ["wheat", "barley", "rye", "oats", "rice", "cotton"]
+    },
+    "green_leafy": {
+      "name": "Green / Leafy",
+      "description": "Grass, silage, leafy vegetables, green cuttings",
+      "c_n_ratio": 18,
+      "biogas_yield_m3_per_ton_fresh": 180,
+      "dry_matter_percent": 25,
+      "acidification_risk": "low",
+      "typical_crops": ["grass", "corn_silage", "lettuce", "cabbage"]
+    },
+    "root_starch": {
+      "name": "Root / Starch",
+      "description": "Potatoes, sugar beet, cassava, root vegetables",
+      "c_n_ratio": 25,
+      "biogas_yield_m3_per_ton_fresh": 120,
+      "dry_matter_percent": 20,
+      "acidification_risk": "medium",
+      "typical_crops": ["potatoes", "sugar_beet", "onions"]
+    },
+    "sugary_fruit": {
+      "name": "Sugary / Fruit",
+      "description": "Fruit waste, fruit pulp, high-sugar feedstocks",
+      "c_n_ratio": 35,
+      "biogas_yield_m3_per_ton_fresh": 150,
+      "dry_matter_percent": 15,
+      "acidification_risk": "high",
+      "typical_crops": ["grapes", "tomatoes", "fruit_waste"]
+    },
+    "manure": {
+      "name": "Manure",
+      "description": "Livestock manure (cattle, pig, poultry)",
+      "c_n_ratio": 15,
+      "biogas_yield_m3_per_ton_fresh": 25,
+      "dry_matter_percent": 12,
+      "acidification_risk": "low",
+      "typical_crops": []
+    }
+  },
+  "recipe": {
+    "ideal_c_n_min": 20,
+    "ideal_c_n_max": 30,
+    "acidification_warning_if_sugary_share_above": 0.5,
+    "recommendation": "Balance high-sugar feedstocks with manure or straw to keep C:N in 20–30 range and avoid pH crash."
+  }
+}

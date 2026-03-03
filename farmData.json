@@ -1,0 +1,170 @@
+{
+  "livestock": {
+    "dairy_cow": {
+      "daily_manure_kg": 60,
+      "biogas_yield_m3_per_kg": 0.04,
+      "methane_content_percent": 0.60
+    },
+    "pig": {
+      "daily_manure_kg": 5,
+      "biogas_yield_m3_per_kg": 0.06,
+      "methane_content_percent": 0.65
+    },
+    "chicken": {
+      "daily_manure_kg": 0.15,
+      "biogas_yield_m3_per_kg": 0.10,
+      "methane_content_percent": 0.70
+    }
+  },
+  "crops": {
+    "wheat": {
+      "residue_yield_tons_per_ha": 4.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3]
+    },
+    "barley": {
+      "residue_yield_tons_per_ha": 3.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3]
+    },
+    "corn": {
+      "residue_yield_tons_per_ha": 9.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "potatoes": {
+      "residue_yield_tons_per_ha": 2.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "soy": {
+      "residue_yield_tons_per_ha": 2.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "sunflower": {
+      "residue_yield_tons_per_ha": 3.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "rapeseed": {
+      "residue_yield_tons_per_ha": 3.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3]
+    },
+    "sugar_beet": {
+      "residue_yield_tons_per_ha": 4.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "rye": {
+      "residue_yield_tons_per_ha": 3.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3]
+    },
+    "oats": {
+      "residue_yield_tons_per_ha": 3.2,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3]
+    },
+    "tomatoes": {
+      "residue_yield_tons_per_ha": 1.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [8, 9, 10, 11]
+    },
+    "olives": {
+      "residue_yield_tons_per_ha": 2.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [8, 9, 10, 11]
+    },
+    "grapes": {
+      "residue_yield_tons_per_ha": 1.8,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [8, 9, 10, 11]
+    },
+    "rice": {
+      "residue_yield_tons_per_ha": 5.0,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "cotton": {
+      "residue_yield_tons_per_ha": 3.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [4, 5, 6, 7]
+    },
+    "onions": {
+      "residue_yield_tons_per_ha": 1.2,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [8, 9, 10, 11]
+    },
+    "grass": {
+      "residue_yield_tons_per_ha": 2.5,
+      "biochar_conversion_rate": 0.30,
+      "co2_sequestered_per_ton_biochar": 2.5,
+      "season_months": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    }
+  },
+  "energy": {
+    "biogas_energy_density_kwh_per_m3": 6.0,
+    "generator_efficiency": 0.35,
+    "grid_co2_intensity_kg_per_kwh": 0.40,
+    "electricity_cost_usd_per_kwh": 0.15,
+    "solar_pv_cost_per_m2_usd": 200,
+    "biogas_plant_cost_per_cow_usd": 500
+  },
+  "water": {
+    "roof_runoff_coefficient": 0.85,
+    "water_pumping_cost_usd_per_liter": 0.0015
+  },
+  "digestate": {
+    "liters_per_m3_biogas": 10,
+    "fertilizer_value_eur_per_liter": 0.40,
+    "npk_equivalent_per_liter_kg": 0.5
+  },
+  "parasitic_load": {
+    "ambient_temp_threshold_c": 5,
+    "fraction_deduct_min": 0.20,
+    "fraction_deduct_max": 0.30
+  },
+  "electrical": {
+    "battery_min_profit_eur_per_kwh": 0.02,
+    "default_inverter_clipping": true
+  },
+  "methane_baseline": {
+    "open_lagoon_kg_co2e_per_m3_biogas_avoided": 2.5,
+    "spread_field_kg_co2e_per_m3_biogas_avoided": 0.8
+  },
+  "seasons": {
+    "season_1": {
+      "name": "Spring Crop Season",
+      "months": [0, 1, 2, 3],
+      "fallow_month": 4
+    },
+    "season_2": {
+      "name": "Summer Crop Season",
+      "months": [4, 5, 6, 7],
+      "fallow_month": 8
+    },
+    "season_3": {
+      "name": "Autumn Crop Season",
+      "months": [8, 9, 10, 11],
+      "fallow_month": 0
+    }
+  }
+}
