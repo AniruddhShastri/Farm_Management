@@ -79,7 +79,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
         <div className="mb-14 px-2">
           <div className="flex flex-col gap-1">
             <img src={logo} alt="Logo" className="h-10 w-auto object-contain self-start" />
-            <p className="text-[10px] font-black text-[#a5c0b1] uppercase tracking-[0.2em] mt-1">Smart Module</p>
+            <p className="text-[10px] font-black text-[#a5c0b1] uppercase tracking-[0.2em] mt-1">MODULAR SYSTEMS</p>
           </div>
         </div>
 

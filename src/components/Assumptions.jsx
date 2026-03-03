@@ -180,7 +180,7 @@ function Assumptions() {
         className="flex justify-between items-center cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <h2 className="text-xl font-black text-emerald-950 uppercase tracking-wider">Methodology & Sources</h2>
+        <h2 className="text-xl font-black text-emerald-950 uppercase tracking-wider">Assumptions & Sources</h2>
         <button className="text-emerald-800 focus:outline-none">
           {isOpen ? (
             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

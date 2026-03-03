@@ -9,7 +9,7 @@ import RecipeCheckWarning from './components/RecipeCheckWarning';
 import DigestateCard from './components/DigestateCard';
 import RevenueStack from './components/RevenueStack';
 import ParasiticLoadNote from './components/ParasiticLoadNote';
-import logoSidebar from './assets/logo-sidebar.png';
+
 import logo from './assets/logo.png';
 import {
   getBiogasEnergy,
@@ -231,20 +231,28 @@ function App() {
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 lg:gap-8 mb-8">
               <div className="flex-1 w-full">
                 <div className="hidden lg:flex items-center gap-3 mb-4">
-                  <img src={logoSidebar} alt="Logo" className="h-12 w-auto object-contain" />
+
                   <div>
-                    <h1 className="text-3xl lg:text-4xl font-black tracking-tighter text-slate-900 leading-none mb-1">
-                      Eco<span className="text-emerald-600">Synergy</span>
-                    </h1>
+                    <img src={logo} alt="VonEng" className="h-8 lg:h-10 w-auto object-contain mb-1" />
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Circular Systems Hub</p>
                   </div>
                 </div>
                 <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-800 mb-2 leading-tight">
                   Future-Ready Farm Modeling
                 </h2>
-                <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-500 max-w-2xl leading-relaxed mb-6">
                   Unlock the hidden value in your farm's ecosystem. Model energy, water, and waste flows to achieve climate-positive operations at <span className="text-slate-800 font-bold underline decoration-emerald-200 underline-offset-4">{inputs.location}</span>.
                 </p>
+
+                <div className="bg-amber-50/80 backdrop-blur-sm border border-amber-200/60 rounded-2xl p-4 sm:p-5 flex items-start gap-4 flex-row max-w-2xl shadow-sm hover:shadow-md transition-shadow">
+                  <span className="text-2xl pt-0.5" role="img" aria-label="Waving hand">👋</span>
+                  <div className="flex flex-col gap-1">
+                    <h4 className="text-sm font-black text-amber-900 tracking-tight">Hey there, changemaker!</h4>
+                    <p className="text-[11px] sm:text-xs text-amber-800/90 leading-relaxed font-medium">
+                      Just a heads up, this is an early prototype we're excitedly tinkering with! While these numbers are grounded in solid research, think of them as a <span className="font-bold underline decoration-amber-300">brilliant educated guess</span> rather than a 100% guarantee. Have fun exploring the possibilities!
+                    </p>
+                  </div>
+                </div>
               </div>
 
               <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end gap-4 w-full lg:w-auto">
@@ -268,12 +276,7 @@ function App() {
 
             {/* Location Map: Responsive height */}
             <div className="glass-card rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden shadow-2xl border-white/40 h-[250px] sm:h-[350px] lg:h-[420px] mb-8 lg:mb-12 group relative">
-              <div className="absolute top-4 left-6 z-20 pointer-events-none">
-                <span className="px-4 py-1.5 bg-white/90 backdrop-blur-md text-slate-900 text-[9px] sm:text-[10px] font-black rounded-full border border-white shadow-lg uppercase tracking-widest flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Satellite View
-                </span>
-              </div>
+
               <div className="absolute inset-0 bg-emerald-900/5 group-hover:bg-transparent transition-colors z-10 pointer-events-none" />
               <LocationMap
                 location={inputs.location}
