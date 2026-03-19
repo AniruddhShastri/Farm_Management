@@ -52,14 +52,14 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
     grapes: 'Grapes', rice: 'Rice', cotton: 'Cotton', onions: 'Onions', grass: 'Grass'
   };
 
-  const inputClasses = "w-full px-5 py-3 bg-[#f3f7f4] border-none rounded-2xl text-[#2d5a4c] placeholder-[#a5c0b1] focus:ring-2 focus:ring-[#10b981] focus:bg-white transition-all outline-none shadow-inner appearance-none cursor-pointer";
-  const labelClasses = "block text-[10px] font-bold uppercase tracking-[0.12em] text-[#4a7c66] mb-2 px-2";
+  const inputClasses = "w-full px-5 py-3 bg-white/5 border-none rounded-2xl text-white placeholder-slate-500 focus:ring-2 focus:ring-[#10b981] focus:bg-[#0a1a0f] transition-all outline-none shadow-inner appearance-none cursor-pointer";
+  const labelClasses = "block text-[10px] font-bold uppercase tracking-[0.12em] text-green-400 mb-2 px-2";
 
   return (
     <div className={`
       fixed inset-y-0 left-0 lg:relative lg:flex
-      w-80 bg-[#fbfcfa] border-none p-8 overflow-y-auto h-screen 
-      shadow-[25px_0_60px_-15px_rgba(45,90,76,0.12)] z-50 
+      w-80 bg-[#030a06] border-none p-8 overflow-y-auto h-screen 
+      shadow-[25px_0_60px_-15px_rgba(34,197,94,0.12)] z-50 
       lg:rounded-tr-[4rem] lg:rounded-br-[4rem] no-scrollbar
       transition-transform duration-500 ease-in-out
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
@@ -68,7 +68,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
         {/* Mobile Close Button */}
         <button
           onClick={onClose}
-          className="lg:hidden absolute top-6 right-6 p-2 bg-emerald-50 text-emerald-600 rounded-xl"
+          className="lg:hidden absolute top-6 right-6 p-2 bg-green-400/10 text-green-400 rounded-xl"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
             <line x1="18" y1="6" x2="6" y2="18" />
@@ -79,18 +79,18 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
         <div className="mb-14 px-2">
           <div className="flex flex-col gap-1">
             <img src={logo} alt="Logo" className="h-10 w-auto object-contain self-start" />
-            <p className="text-[10px] font-black text-[#a5c0b1] uppercase tracking-[0.2em] mt-1">MODULAR SYSTEMS</p>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">MODULAR SYSTEMS</p>
           </div>
         </div>
 
         <div className="space-y-16 pb-12">
           {/* Section: Geography */}
           <div className="animate-fade-in">
-            <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-              <div className="p-2 bg-[#e8f3ee] rounded-xl">
+            <div className="flex items-center gap-3 mb-6 text-green-400">
+              <div className="p-2 bg-green-400/10 rounded-xl">
                 <SectionIcon type="location" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#2d5a4c]">Region</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Region</h3>
             </div>
             <div className="px-1 group">
               <label className={labelClasses}>Primary Location</label>
@@ -107,7 +107,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
                     <option key={loc} value={loc}>{loc}</option>
                   ))}
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#10b981] transition-transform group-focus-within:rotate-180">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-green-400 transition-transform group-focus-within:rotate-180">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -118,11 +118,11 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
 
           {/* Section: Livestock */}
           <div className="animate-fade-in" style={{ animationDelay: '0.1s' }}>
-            <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-              <div className="p-2 bg-[#e8f3ee] rounded-xl">
+            <div className="flex items-center gap-3 mb-6 text-green-400">
+              <div className="p-2 bg-green-400/10 rounded-xl">
                 <SectionIcon type="livestock" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#2d5a4c]">Livestock</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Livestock</h3>
             </div>
             <div className="space-y-6 px-1">
               {[
@@ -146,11 +146,11 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
 
           {/* Section: Crops */}
           <div className="animate-fade-in" style={{ animationDelay: '0.2s' }}>
-            <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-              <div className="p-2 bg-[#e8f3ee] rounded-xl">
+            <div className="flex items-center gap-3 mb-6 text-green-400">
+              <div className="p-2 bg-green-400/10 rounded-xl">
                 <SectionIcon type="crops" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#2d5a4c]">Cropland</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Cropland</h3>
             </div>
             <div className="space-y-6 px-1">
               {availableCrops.map((crop) => (
@@ -170,11 +170,11 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
 
           {/* Section: Resources */}
           <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div className="flex items-center gap-3 mb-6 text-[#10b981]">
-              <div className="p-2 bg-[#e8f3ee] rounded-xl">
+            <div className="flex items-center gap-3 mb-6 text-green-400">
+              <div className="p-2 bg-green-400/10 rounded-xl">
                 <SectionIcon type="infrastructure" />
               </div>
-              <h3 className="text-sm font-black uppercase tracking-widest text-[#2d5a4c]">Resources</h3>
+              <h3 className="text-sm font-black uppercase tracking-widest text-white">Resources</h3>
             </div>
             <div className="space-y-6 px-1">
               {[
@@ -187,7 +187,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
                 <div key={item.id}>
                   <div className="flex justify-between items-center mb-1">
                     <label className={labelClasses.replace('mb-2', 'mb-0')}>{item.label}</label>
-                    {item.sub && <span className="text-[9px] font-black text-[#10b981] bg-[#e8f3ee] px-2 rounded-lg">{item.sub}</span>}
+                    {item.sub && <span className="text-[9px] font-black text-green-400 bg-green-400/10 px-2 rounded-lg">{item.sub}</span>}
                   </div>
                   <input
                     type="number" min="0" step="0.1"
@@ -206,7 +206,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
 
           {/* Section: Circularity */}
           <div className="animate-fade-in pt-12 border-t border-[#edf2ee]" style={{ animationDelay: '0.4s' }}>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-[#a5c0b1] mb-8 text-center">Circularity Strategy</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 text-whiteenter">Circularity Strategy</h4>
 
             <div className="mb-10 px-1 group">
               <label className={labelClasses}>Manure Cycle</label>
@@ -219,7 +219,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
                   <option value="open_lagoon">Storage Lagoon</option>
                   <option value="spread_field">Field Application</option>
                 </select>
-                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-[#10b981] transition-transform group-focus-within:rotate-180">
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-green-400 transition-transform group-focus-within:rotate-180">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
                   </svg>
@@ -228,7 +228,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
             </div>
 
             <div className="space-y-6 px-1">
-              <h5 className="text-[9px] font-black text-[#a5c0b1] uppercase tracking-[0.2em] mb-4">Output Recipe (%)</h5>
+              <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Output Recipe (%)</h5>
               {biomassBucketKeys.map((key) => {
                 const val = inputs[`feedstock_${key}`] ?? (key === 'manure' ? 50 : 0);
                 return (

@@ -3,7 +3,7 @@ import { formatCurrency, formatCarbon, formatNumber } from '../utils/unitConvert
 
 function KPICard({ title, value, unit, subtitle, icon, colorClass, gradientFrom }) {
   return (
-    <div className="glass-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:-translate-y-1 border-white/40">
+    <div className="glass-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:-translate-y-1 border-white/10/10">
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} to-transparent opacity-10 rounded-full -mr-12 -mt-12 transition-transform duration-700 group-hover:scale-150`} />
 
       <div className="relative z-10">
@@ -15,7 +15,7 @@ function KPICard({ title, value, unit, subtitle, icon, colorClass, gradientFrom 
         </div>
 
         <div className="flex items-baseline gap-1.5 mb-1">
-          <span className="text-3xl font-black tracking-tight text-slate-900 leading-none">
+          <span className="text-3xl font-black tracking-tight text-white leading-none">
             {value}
           </span>
           {unit && (
@@ -25,7 +25,7 @@ function KPICard({ title, value, unit, subtitle, icon, colorClass, gradientFrom 
           )}
         </div>
 
-        <p className="text-[10px] font-bold text-slate-500 tracking-wide uppercase">{subtitle}</p>
+        <p className="text-[10px] font-bold text-slate-400 tracking-wide uppercase">{subtitle}</p>
       </div>
     </div>
   );
@@ -52,7 +52,7 @@ function KPICards({ financialSavings, energyIndependence, carbonImpact }) {
         unit="%"
         subtitle="Self-generated power"
         icon={<span className="text-lg">⚡</span>}
-        colorClass="bg-amber-500 shadow-amber-200"
+        colorClass="bg-yellow-400/100 shadow-amber-200"
         gradientFrom="from-amber-400"
       />
 

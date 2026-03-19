@@ -1,0 +1,167 @@
+{
+  "countries": {
+    "Sweden": {
+      "export_scheme": "Net metering + certificate system",
+      "biogas_fit_eur_per_kwh": 0.06,
+      "solar_fit_eur_per_kwh": 0.05,
+      "grid_connection_approval": "Elnat (local grid operator), typically 4 to 6 weeks",
+      "small_farm_notes": "Biogas plants under 50 kW qualify for simplified grid connection. Green electricity certificates add value.",
+      "subsidy_available": "Investment grants up to 30% via Energimyndigheten",
+      "self_consumption_benefit": "Avoided cost of €0.14/kWh plus certificate value"
+    },
+    "UK": {
+      "export_scheme": "Smart Export Guarantee (SEG)",
+      "biogas_fit_eur_per_kwh": 0.05,
+      "solar_fit_eur_per_kwh": 0.08,
+      "grid_connection_approval": "Your local Distribution Network Operator (DNO), typically 8 to 12 weeks",
+      "small_farm_notes": "SEG replaced Feed-in Tariff in 2020. Any grid-connected generator under 5 MW can apply. Rates vary by supplier.",
+      "subsidy_available": "Farming in Protected Landscapes grants, rural grant schemes",
+      "self_consumption_benefit": "Avoided cost of £0.28/kWh is more valuable than export"
+    },
+    "Germany": {
+      "export_scheme": "EEG (Erneuerbare-Energien-Gesetz) Feed-in Tariff + Flexibility Bonus",
+      "biogas_fit_eur_per_kwh": 0.12,
+      "solar_fit_eur_per_kwh": 0.082,
+      "grid_connection_approval": "Local Netzbetreiber (grid operator), typically 4 to 8 weeks",
+      "small_farm_notes": "Biogas plants under 75 kW: €0.09 to €0.15/kWh guaranteed 20 years. Flexibility bonus €100/kW raised Jan 2025. 1,300 MW biogas tenders in 2025.",
+      "subsidy_available": "BAFA grants, KfW low interest loans for renewables",
+      "self_consumption_benefit": "Avoided cost of €0.28/kWh plus tax exemption on self-produced power"
+    },
+    "France": {
+      "export_scheme": "EDF Obligation d'Achat (Feed-in Tariff)",
+      "biogas_fit_eur_per_kwh": 0.13,
+      "solar_fit_eur_per_kwh": 0.14,
+      "grid_connection_approval": "Enedis (national grid), typically 6 to 10 weeks",
+      "small_farm_notes": "Solar under 9 kW: €0.20/kWh. 9 to 100 kW: €0.14/kWh. 20-year contracts. Rates adjusted quarterly. COSEC certificate required.",
+      "subsidy_available": "MaPrimeRénov, ADEME grants for agricultural biogas",
+      "self_consumption_benefit": "Avoided cost of €0.20/kWh. Self-consumption priority recommended"
+    },
+    "Spain": {
+      "export_scheme": "Net metering (autoconsumo) + surplus compensation",
+      "biogas_fit_eur_per_kwh": 0.065,
+      "solar_fit_eur_per_kwh": 0.065,
+      "grid_connection_approval": "Local distributor (Iberdrola, Endesa, etc.), typically 4 to 8 weeks",
+      "small_farm_notes": "Self-consumption (autoconsumo) strongly favored. Surplus sold at market rate ~€0.05-0.08/kWh. The 'sun tax' was abolished in 2018. Simplified procedure for installations under 100 kW.",
+      "subsidy_available": "IDAE grants, EU Recovery funds for agricultural renewables, regional subsidies",
+      "self_consumption_benefit": "Avoided cost of €0.18/kWh. Almost always better than export"
+    },
+    "Italy": {
+      "export_scheme": "FER X Decree (February 2025) + Scambio sul Posto",
+      "biogas_fit_eur_per_kwh": 0.11,
+      "solar_fit_eur_per_kwh": 0.095,
+      "grid_connection_approval": "Gestore Servizi Energetici (GSE), typically 6 to 12 weeks",
+      "small_farm_notes": "FER X decree (Feb 2025): direct access for plants under 1 MW. Up to 40% grants for small enterprises. Tax credits up to 150% for agricultural biogas. Scambio sul Posto allows net metering for plants under 200 kW.",
+      "subsidy_available": "Piano Agricoltura, PNRR funds, 40% capital grant for biogas under 300 kW",
+      "self_consumption_benefit": "Avoided cost of €0.25/kWh plus Scambio sul Posto offset"
+    },
+    "Netherlands": {
+      "export_scheme": "Net metering (ends Jan 2027) + SDE++ subsidy",
+      "biogas_fit_eur_per_kwh": 0.08,
+      "solar_fit_eur_per_kwh": 0.09,
+      "grid_connection_approval": "Netbeheerder (Stedin, Enexis, Liander), typically 6 to 16 weeks",
+      "small_farm_notes": "Net metering ends January 2027. After that: export at ~€0.05-0.10/kWh. SDE++ subsidy available for agricultural biogas (up to 15 years guaranteed price). Grid congestion a real issue in rural areas — check with netbeheerder first.",
+      "subsidy_available": "SDE++ (up to €0.11/kWh guaranteed for biogas), MEI grant for rural energy",
+      "self_consumption_benefit": "1:1 net metering offset until 2026. After 2027: self-consumption strongly preferred"
+    },
+    "Denmark": {
+      "export_scheme": "Net metering + green certificate system",
+      "biogas_fit_eur_per_kwh": 0.07,
+      "solar_fit_eur_per_kwh": 0.06,
+      "grid_connection_approval": "Local DSO, typically 4 to 8 weeks",
+      "small_farm_notes": "Biogas covered under the Danish biogas support scheme until 2027. Green certificate market adds value. Strong government support for agricultural biogas — Denmark aims to expand biogas use significantly.",
+      "subsidy_available": "Energistyrelsen grants, biogas production subsidy",
+      "self_consumption_benefit": "Avoided cost of €0.31/kWh — self-consumption highly valuable"
+    },
+    "Norway": {
+      "export_scheme": "Net metering + Elsertifikat (electricity certificate)",
+      "biogas_fit_eur_per_kwh": 0.04,
+      "solar_fit_eur_per_kwh": 0.04,
+      "grid_connection_approval": "Local Netteier, typically 4 to 8 weeks",
+      "small_farm_notes": "Grid electricity is very cheap (€0.08/kWh) due to hydro dominance — savings from self-generation are lower in Norway. However grid CO2 is nearly zero (0.017 kg/kWh) so carbon credit value is minimal. Biogas is most valuable for digestate (fertilizer savings).",
+      "subsidy_available": "Enova grants for agricultural energy efficiency",
+      "self_consumption_benefit": "Limited — cheap grid power means lower avoided cost"
+    },
+    "Finland": {
+      "export_scheme": "Feed-in premium scheme + net metering",
+      "biogas_fit_eur_per_kwh": 0.075,
+      "solar_fit_eur_per_kwh": 0.055,
+      "grid_connection_approval": "Local DSO, typically 4 to 8 weeks",
+      "small_farm_notes": "Biogas premium scheme guarantees ~€0.075/kWh above market price. Cold climate means higher parasitic load (up to 30% in winter). Battery storage particularly important for energy independence.",
+      "subsidy_available": "Business Finland grants, rural development funds (LEADER)",
+      "self_consumption_benefit": "Avoided cost of €0.12/kWh plus premium"
+    },
+    "Austria": {
+      "export_scheme": "OeMAG Feed-in Tariff + Investitionszuschuss",
+      "biogas_fit_eur_per_kwh": 0.10,
+      "solar_fit_eur_per_kwh": 0.085,
+      "grid_connection_approval": "Local EVU (Energieversorgungsunternehmen), typically 6 to 10 weeks",
+      "small_farm_notes": "Renewable energy subsidy through OeMAG. Agricultural biogas under 500 kW eligible. Austrian Climate and Energy Fund provides additional grants.",
+      "subsidy_available": "Klima- und Energiefonds grants, AWS loans",
+      "self_consumption_benefit": "Avoided cost of €0.24/kWh — strong case for self-consumption"
+    },
+    "Czech Republic": {
+      "export_scheme": "Feed-in Tariff (ERU regulated)",
+      "biogas_fit_eur_per_kwh": 0.105,
+      "solar_fit_eur_per_kwh": 0.065,
+      "grid_connection_approval": "Distribution System Operator (DSO), typically 6 to 12 weeks",
+      "small_farm_notes": "Czech ERU sets guaranteed prices for 15-20 years. High coal dependence means good carbon savings. Support primarily for biogas under 250 kW.",
+      "subsidy_available": "OPPIK grants, State Environmental Fund subsidies",
+      "self_consumption_benefit": "Avoided cost of €0.21/kWh plus grid reliability benefit"
+    },
+    "Poland": {
+      "export_scheme": "RES Act auction system + FiT for small installations",
+      "biogas_fit_eur_per_kwh": 0.105,
+      "solar_fit_eur_per_kwh": 0.075,
+      "grid_connection_approval": "Local OSD (Operator Systemu Dystrybucyjnego), typically 8 to 16 weeks",
+      "small_farm_notes": "Very high grid CO2 (0.618 kg/kWh) means largest carbon credit potential in Europe. Micro-installation FiT for farms under 50 kW. Auction system for larger plants. Grid connection can be slow — plan ahead.",
+      "subsidy_available": "NFOSiGW grants, EU Cohesion Fund, KPO (National Recovery Plan) for agricultural biogas",
+      "self_consumption_benefit": "Strongest carbon argument in Europe. €0.19/kWh avoided plus massive CO2 credits"
+    },
+    "Belgium": {
+      "export_scheme": "Green certificate system + VREG regulated net metering",
+      "biogas_fit_eur_per_kwh": 0.09,
+      "solar_fit_eur_per_kwh": 0.09,
+      "grid_connection_approval": "Fluvius (Flanders) or Sibelga (Brussels), typically 6 to 10 weeks",
+      "small_farm_notes": "Green certificate system rewards renewable production. Regional differences: Flanders, Wallonia, and Brussels have separate schemes. Net metering for residential and small commercial.",
+      "subsidy_available": "VLAIO investment support, Walloon REI program",
+      "self_consumption_benefit": "Avoided cost of €0.29/kWh — highly valuable"
+    },
+    "Switzerland": {
+      "export_scheme": "KEV (Kostendeckende Einspeisevergutung) — waiting list",
+      "biogas_fit_eur_per_kwh": 0.10,
+      "solar_fit_eur_per_kwh": 0.085,
+      "grid_connection_approval": "Local grid operator, typically 4 to 8 weeks",
+      "small_farm_notes": "KEV subsidy has a waiting list — early registration is key. One-time investment subsidy also available as an alternative. CH-origin guarantee certificates add value.",
+      "subsidy_available": "Bundesamt fur Energie (SFOE) one-time investment subsidies up to 30%",
+      "self_consumption_benefit": "Avoided cost of €0.23/kWh — strong self-consumption case"
+    },
+    "Ireland": {
+      "export_scheme": "SSRH (Small-Scale Renewable Electricity Support Scheme) + Biomethane Strategy",
+      "biogas_fit_eur_per_kwh": 0.135,
+      "solar_fit_eur_per_kwh": 0.185,
+      "grid_connection_approval": "ESB Networks, typically 8 to 16 weeks",
+      "small_farm_notes": "Ireland has an operational tariff for biogas CHP. Pilot scheme for 15 farm-scale biogas plants. Government target: 5.7 TWh of biomethane by 2030 — strong policy support expected.",
+      "subsidy_available": "SEAI grants for agricultural energy, TAMS III farm scheme",
+      "self_consumption_benefit": "Avoided cost of €0.26/kWh — very strong case for self-consumption"
+    },
+    "Portugal": {
+      "export_scheme": "UPAC regime (self-consumption) + UPP (small producer)",
+      "biogas_fit_eur_per_kwh": 0.07,
+      "solar_fit_eur_per_kwh": 0.10,
+      "grid_connection_approval": "E-Redes or local DSO, typically 6 to 10 weeks",
+      "small_farm_notes": "UPAC regime strongly promotes self-consumption. Very high solar resource (5.5 kWh/m²/day in Lisbon). Surplus can be sold under UPP small producer regime.",
+      "subsidy_available": "PRR (Plano de Recuperação e Resiliência) agriculture grants, POSEUR program",
+      "self_consumption_benefit": "Avoided cost of €0.22/kWh. Solar self-consumption particularly strong at 5.5 kWh/m²/day"
+    },
+    "Greece": {
+      "export_scheme": "Net metering + RES Special Account (LAGIE)",
+      "biogas_fit_eur_per_kwh": 0.09,
+      "solar_fit_eur_per_kwh": 0.10,
+      "grid_connection_approval": "HEDNO (Hellenic Electricity Distribution Network Operator), typically 8 to 14 weeks",
+      "small_farm_notes": "Net metering for installations under 500 kW. Highest solar irradiance in Europe (5.8 kWh/m²/day in Athens). Agriculture net-metering allows offsetting agricultural consumption from on-farm generation.",
+      "subsidy_available": "ESIF grants for agricultural energy, National Development Plan",
+      "self_consumption_benefit": "Avoided cost of €0.19/kWh plus exceptional solar resource"
+    }
+  },
+  "general_disclaimer": "All regulatory information is for guidance only. Actual feed-in tariffs, connection requirements, grid capacity, and subsidy availability must be confirmed with your local grid operator and national energy regulator. Tariff rates change frequently. Always consult a qualified energy engineer before making investment decisions."
+}

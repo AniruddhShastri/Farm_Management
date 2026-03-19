@@ -86,26 +86,26 @@ function Charts({
   return (
     <div className="space-y-8">
       {/* Modern Energy Generation Breakdown */}
-      <div className="bg-white/40 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/60 relative overflow-hidden group">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-400/5 rounded-full -mr-16 -mt-16 blur-2xl" />
+      <div className="bg-[#0a1a0f]/5 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/10/10 relative overflow-hidden group">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-green-400/5 rounded-full -mr-16 -mt-16 blur-2xl" />
 
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Energy Generation</h3>
+            <h3 className="text-xl font-black text-white uppercase tracking-tight leading-none mb-1">Energy Generation</h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Annual output by source</p>
           </div>
 
           <div className="flex gap-4">
             <div className="flex flex-col items-end">
               <span className="text-[10px] font-black text-slate-400 uppercase">Efficiency Target</span>
-              <span className="text-xl font-black text-emerald-600">
+              <span className="text-xl font-black text-green-400">
                 {formatNumber(totalEnergyFormatted.value)} <span className="text-xs">{totalEnergyFormatted.unit}</span>
               </span>
             </div>
             <div className="w-px h-10 bg-slate-200" />
             <div className="flex flex-col items-end">
               <span className="text-[10px] font-black text-slate-400 uppercase">Operational Need</span>
-              <span className="text-xl font-black text-slate-800">
+              <span className="text-xl font-black text-white">
                 {formatNumber(requiredEnergyFormatted.value)} <span className="text-xs">{requiredEnergyFormatted.unit}</span>
               </span>
             </div>
@@ -155,11 +155,11 @@ function Charts({
                     const data = payload[0].payload;
                     const formatted = formatEnergy(data.energy);
                     return (
-                      <div className="glass-card rounded-2xl p-4 shadow-2xl border-white/80 animate-in fade-in zoom-in duration-200">
+                      <div className="glass-card rounded-2xl p-4 shadow-2xl border-white/10/80 animate-in fade-in zoom-in duration-200">
                         <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{data.source} Output</p>
                         <div className="flex items-baseline gap-2">
-                          <span className="text-2xl font-black text-slate-900">{formatNumber(formatted.value)}</span>
-                          <span className="text-sm font-bold text-slate-500 uppercase">{formatted.unit}/yr</span>
+                          <span className="text-2xl font-black text-white">{formatNumber(formatted.value)}</span>
+                          <span className="text-sm font-bold text-slate-400 uppercase">{formatted.unit}/yr</span>
                         </div>
                         <div
                           className="h-1.5 w-full rounded-full mt-3 overflow-hidden bg-slate-100"
@@ -201,23 +201,23 @@ function Charts({
         </div>
 
         {/* Improved Legend and Summary */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-slate-100">
-          <div className="group/item cursor-default bg-emerald-50/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-white/10/10">
+          <div className="group/item cursor-default bg-green-400/5 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+              <div className="w-2 h-2 rounded-full bg-green-400/100 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
               <p className="text-[10px] font-black text-emerald-800 uppercase tracking-widest">Biogas</p>
             </div>
-            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-emerald-700 transition-colors">
+            <p className="text-base sm:text-lg font-black text-white group-hover/item:text-green-400 transition-colors">
               {formatNumber(biogasFormatted.value)} <span className="text-[10px] text-slate-400">{biogasFormatted.unit}</span>
             </p>
           </div>
 
-          <div className="group/item cursor-default bg-amber-50/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
+          <div className="group/item cursor-default bg-yellow-400/10/30 sm:bg-transparent p-3 sm:p-0 rounded-2xl sm:rounded-none">
             <div className="flex items-center gap-2 mb-1">
-              <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
+              <div className="w-2 h-2 rounded-full bg-yellow-400/100 shadow-[0_0_8px_rgba(245,158,11,0.5)]" />
               <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest">Solar</p>
             </div>
-            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-amber-600 transition-colors">
+            <p className="text-base sm:text-lg font-black text-white group-hover/item:text-amber-600 transition-colors">
               {formatNumber(solarFormatted.value)} <span className="text-[10px] text-slate-400">{solarFormatted.unit}</span>
             </p>
           </div>
@@ -227,7 +227,7 @@ function Charts({
               <div className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.5)]" />
               <p className="text-[10px] font-black text-rose-800 uppercase tracking-widest">From Grid</p>
             </div>
-            <p className="text-base sm:text-lg font-black text-slate-800 group-hover/item:text-rose-600 transition-colors">
+            <p className="text-base sm:text-lg font-black text-white group-hover/item:text-rose-600 transition-colors">
               {formatNumber(formatEnergy(Math.max(0, totalEnergyRequired - totalEnergy)).value)} <span className="text-[10px] text-slate-400">{formatEnergy(Math.max(0, totalEnergyRequired - totalEnergy)).unit}</span>
             </p>
           </div>
@@ -237,10 +237,10 @@ function Charts({
       {/* Modern Water and Carbon Row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {/* Water Analysis Donut */}
-        <div className="bg-white/40 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/60 relative overflow-hidden group">
+        <div className="bg-[#0a1a0f]/5 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/10/10 relative overflow-hidden group">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Water Analysis</h3>
+              <h3 className="text-lg font-black text-white uppercase tracking-tight leading-none mb-1">Water Analysis</h3>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Self-sufficiency ratio</p>
             </div>
             <div className="p-2 bg-cyan-50 rounded-xl text-cyan-600">
@@ -283,9 +283,9 @@ function Charts({
                       const data = payload[0].payload;
                       const formatted = formatWater(data.value);
                       return (
-                        <div className="glass-card rounded-xl p-3 shadow-xl border-white/80">
+                        <div className="glass-card rounded-xl p-3 shadow-xl border-white/10/80">
                           <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{data.name}</p>
-                          <p className="text-lg font-black text-slate-800">{formatNumber(formatted.value)} {formatted.unit}</p>
+                          <p className="text-lg font-black text-white">{formatNumber(formatted.value)} {formatted.unit}</p>
                         </div>
                       );
                     }
@@ -298,13 +298,13 @@ function Charts({
             {/* Center Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Harvested</span>
-              <span className="text-2xl font-black text-slate-900 leading-none">
+              <span className="text-2xl font-black text-white leading-none">
                 {Math.round((waterHarvest / waterRequired) * 100)}%
               </span>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100/50 pt-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10/5 pt-4">
             <div className="text-center">
               <p className="text-[10px] font-bold text-slate-400 uppercase mb-1">Total Needed</p>
               <p className="text-sm font-black text-slate-700">{formatNumber(waterRequiredFormatted.value)} {waterRequiredFormatted.unit}</p>
@@ -317,13 +317,13 @@ function Charts({
         </div>
 
         {/* Carbon Impact Donut */}
-        <div className="bg-white/40 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/60 relative overflow-hidden group">
+        <div className="bg-[#0a1a0f]/5 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/10/10 relative overflow-hidden group">
           <div className="flex justify-between items-center mb-6">
             <div>
-              <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Carbon Balance</h3>
+              <h3 className="text-lg font-black text-white uppercase tracking-tight leading-none mb-1">Carbon Balance</h3>
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net environmental offset</p>
             </div>
-            <div className="p-2 bg-emerald-50 rounded-xl text-emerald-600">
+            <div className="p-2 bg-green-400/10 rounded-xl text-green-400">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                 <path d="M12 2L2 7L12 12L22 7L12 2Z" />
               </svg>
@@ -363,9 +363,9 @@ function Charts({
                       const data = payload[0].payload;
                       const formatted = formatCarbon(data.value);
                       return (
-                        <div className="glass-card rounded-xl p-3 shadow-xl border-white/80">
+                        <div className="glass-card rounded-xl p-3 shadow-xl border-white/10/80">
                           <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{data.name}</p>
-                          <p className="text-lg font-black text-slate-800">{formatNumber(formatted.value)} {formatted.unit}</p>
+                          <p className="text-lg font-black text-white">{formatNumber(formatted.value)} {formatted.unit}</p>
                         </div>
                       );
                     }
@@ -378,16 +378,16 @@ function Charts({
             {/* Center Content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net Offset</span>
-              <span className="text-2xl font-black text-emerald-600 leading-none">
+              <span className="text-2xl font-black text-green-400 leading-none">
                 {Math.abs(carbonFormatted.value) > 1000 ? (carbonFormatted.value / 1000).toFixed(1) + 'k' : formatNumber(carbonFormatted.value)}
               </span>
-              <span className="text-[10px] font-bold text-slate-500 uppercase">{carbonFormatted.unit}</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase">{carbonFormatted.unit}</span>
             </div>
           </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-slate-100/50 pt-4">
+          <div className="mt-4 grid grid-cols-2 gap-4 border-t border-white/10/5 pt-4">
             <div className="text-center">
-              <p className="text-[10px] font-bold text-emerald-600 uppercase mb-1">Sequestered</p>
+              <p className="text-[10px] font-bold text-green-400 uppercase mb-1">Sequestered</p>
               <p className="text-sm font-black text-slate-700">{formatNumber(formatCarbon(carbonSequestered).value)} {formatCarbon(carbonSequestered).unit}</p>
             </div>
             <div className="text-center">
@@ -399,13 +399,13 @@ function Charts({
       </div>
 
       {/* Modern Financial Breakdown */}
-      <div className="bg-white/40 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/60 relative overflow-hidden group">
+      <div className="bg-[#0a1a0f]/5 backdrop-blur-md rounded-[2rem] p-6 shadow-xl border border-white/10/10 relative overflow-hidden group">
         <div className="flex justify-between items-center mb-6">
           <div>
-            <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight leading-none mb-1">Financial Yield</h3>
+            <h3 className="text-xl font-black text-white uppercase tracking-tight leading-none mb-1">Financial Yield</h3>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Annual savings breakdown</p>
           </div>
-          <div className="p-2 bg-amber-50 rounded-xl text-amber-600">
+          <div className="p-2 bg-yellow-400/10 rounded-xl text-amber-600">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
             </svg>
@@ -440,9 +440,9 @@ function Charts({
                   if (active && payload && payload.length) {
                     const data = payload[0].payload;
                     return (
-                      <div className="glass-card rounded-xl p-3 shadow-xl border-white/80">
+                      <div className="glass-card rounded-xl p-3 shadow-xl border-white/10/80">
                         <p className="text-[10px] font-black uppercase text-slate-400 mb-1">{data.category}</p>
-                        <p className="text-lg font-black text-slate-800">{formatCurrency(data.amount)}</p>
+                        <p className="text-lg font-black text-white">{formatCurrency(data.amount)}</p>
                       </div>
                     );
                   }
@@ -463,14 +463,14 @@ function Charts({
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-slate-100/50">
-          <div className="bg-amber-50/50 rounded-2xl p-4 border border-amber-100/50 transition-all hover:bg-amber-50">
+        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 pt-6 border-t border-white/10/5">
+          <div className="bg-yellow-400/10/50 rounded-2xl p-4 border border-yellow-400/10 transition-all hover:bg-yellow-400/10">
             <p className="text-[10px] font-black text-amber-800 uppercase tracking-widest mb-1">Energy Saving</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900">{formatCurrency(energySavings)}</p>
+            <p className="text-lg sm:text-xl font-black text-white">{formatCurrency(energySavings)}</p>
           </div>
           <div className="bg-cyan-50/50 rounded-2xl p-4 border border-cyan-100/50 transition-all hover:bg-cyan-50">
             <p className="text-[10px] font-black text-cyan-800 uppercase tracking-widest mb-1">Water Saving</p>
-            <p className="text-lg sm:text-xl font-black text-slate-900">{formatCurrency(waterSavings)}</p>
+            <p className="text-lg sm:text-xl font-black text-white">{formatCurrency(waterSavings)}</p>
           </div>
           <div className="bg-emerald-600 rounded-2xl p-4 shadow-lg shadow-emerald-200/50 transition-all hover:scale-[1.02] hover:bg-emerald-700">
             <p className="text-[10px] font-black text-emerald-100 uppercase tracking-widest mb-1">Gross Yield</p>

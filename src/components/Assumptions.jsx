@@ -175,7 +175,7 @@ function Assumptions() {
   ];
 
   return (
-    <div className="bg-white rounded-xl p-5 shadow-sm border border-emerald-50 mt-6">
+    <div className="bg-[#0a1a0f] rounded-xl p-5 shadow-sm border border-emerald-50 mt-6">
       <div
         className="flex justify-between items-center cursor-pointer select-none"
         onClick={() => setIsOpen(!isOpen)}
@@ -196,18 +196,18 @@ function Assumptions() {
 
       {isOpen && (
         <div className="mt-4">
-          <p className="text-[11px] text-slate-500 mb-6 leading-relaxed">
+          <p className="text-[11px] text-slate-400 mb-6 leading-relaxed">
             Calculations are derived from peer-reviewed scientific literature and
             established global databases.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {assumptions.map((category, catIndex) => (
-              <div key={catIndex} className="bg-slate-50/50 rounded-xl p-4 border border-slate-100">
-                <h3 className="text-sm font-black text-[#2d5a4c] mb-3 uppercase tracking-wider">{category.category}</h3>
+              <div key={catIndex} className="bg-white/5 rounded-xl p-4 border border-white/10/10">
+                <h3 className="text-sm font-black text-white mb-3 uppercase tracking-wider">{category.category}</h3>
                 <div className="space-y-3">
                   {category.items.map((item, itemIndex) => (
-                    <div key={itemIndex} className="bg-white/80 rounded-lg p-3 border border-emerald-100/50">
+                    <div key={itemIndex} className="bg-[#030a06]/80 rounded-lg p-3 border border-green-400/10">
                       <p className="text-[11px] font-bold text-slate-700 mb-1">{item.assumption}</p>
                       <p className="text-[9px] text-slate-400 italic">Source: {item.source}</p>
                     </div>
@@ -217,7 +217,7 @@ function Assumptions() {
             ))}
           </div>
 
-          <div className="mt-8 p-6 bg-emerald-50 border border-emerald-200 rounded-lg">
+          <div className="mt-8 p-6 bg-green-400/10 border border-green-400/20 rounded-lg">
             <h3 className="text-lg font-semibold text-emerald-900 mb-2">Important Note on Financial Calculations</h3>
             <p className="text-emerald-800 text-stone-700">
               <strong>Infrastructure Costs (CAPEX) are NOT included in the revenue stack.</strong>

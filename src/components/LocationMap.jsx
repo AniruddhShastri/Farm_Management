@@ -28,7 +28,7 @@ function LocationMap({ location, coordinates }) {
             allowFullScreen
           />
           <div className="absolute bottom-6 left-6 z-20">
-            <div className="glass-card bg-white/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border-white flex items-center gap-3 transform transition-transform group-hover:scale-110">
+            <div className="glass-card bg-[#030a06]/95 backdrop-blur-md px-4 py-2.5 rounded-2xl shadow-xl border-white/10 flex items-center gap-3 transform transition-transform group-hover:scale-110">
               <div className="w-8 h-8 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-lg shadow-rose-200">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                   <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
@@ -37,7 +37,7 @@ function LocationMap({ location, coordinates }) {
               </div>
               <div>
                 <span className="block text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Station Location</span>
-                <span className="block text-sm font-black text-slate-900 tracking-tight">{location}</span>
+                <span className="block text-sm font-black text-white tracking-tight">{location}</span>
               </div>
             </div>
           </div>
