@@ -59,11 +59,39 @@ export default function HomePage() {
   ];
 
   const team = [
-    { name: 'Aniruddh Shastri',            role: 'CEO',                      photo: '/team/Aniruddh.jpeg' },
-    { name: 'Juan Camilo Quiroga Manrique', role: 'Supply Chain Lead',        photo: '/team/Juan.jpeg' },
-    { name: 'Karthik Roshan Bharathraj',    role: 'Electrical Systems Lead',  photo: '/team/Karthik.jpeg' },
-    { name: 'Leonardo Vicentini Bonatto',   role: 'Finance Lead',             photo: '/team/Leornado.jpeg' },
-    { name: 'Tejan Sunil Shinde',           role: 'Mechanical Systems Lead',  photo: '/team/Tejan.jpeg' },
+    { name: 'Aniruddh Shastri',            role: 'CEO',                      photo: '/team/Aniruddh.jpeg',  linkedin: 'https://www.linkedin.com/in/shastrianiruddh/' },
+    { name: 'Juan Camilo Quiroga Manrique', role: 'Supply Chain Lead',        photo: '/team/Juan.jpeg',      linkedin: 'https://www.linkedin.com/in/juan-camilo-quiroga-manrique-9b1aab1b4/' },
+    { name: 'Karthik Roshan Bharathraj',    role: 'Electrical Systems Lead',  photo: '/team/Karthik.jpeg',   linkedin: 'https://www.linkedin.com/in/karthikroshanbharathraj151850230/' },
+    { name: 'Leonardo Vicentini Bonatto',   role: 'Finance Lead',             photo: '/team/Leornado.jpeg',  linkedin: 'https://www.linkedin.com/in/leonardobonatto/' },
+    { name: 'Tejan Sunil Shinde',           role: 'Mechanical Systems Lead',  photo: '/team/Tejan.jpeg',     linkedin: 'https://www.linkedin.com/in/tejanshinde/' },
+  ];
+
+  const roadmap = [
+    {
+      phase: '01', name: 'Engineering\n& Research', color: '#22c55e',
+      hw: ['CAD models for MVP', 'Thermal management', 'IoT sensor selection'],
+      sw: ['Data architecture mapping', 'CSRD compliance frameworks'],
+    },
+    {
+      phase: '02', name: 'MVP Assembly\n& Testing', color: '#16a34a',
+      hw: ['First functional prototype', 'System-wide stress testing'],
+      sw: ['MVP dashboard build', 'Cloud-to-edge data comms'],
+    },
+    {
+      phase: '03', name: 'Pilot\nDeployment', color: '#15803d',
+      hw: ['Full-scale container assembly', 'Real-world farm operations'],
+      sw: ['Edge computing optimisation', 'Initial CSRD report extraction'],
+    },
+    {
+      phase: '04', name: 'Corporate\nIntegration', color: '#166534',
+      hw: ['Fleet of 3–5 units', 'Global safety certifications'],
+      sw: ['Corporate ESG Portal launch', 'Verified Scope 3 data'],
+    },
+    {
+      phase: '05', name: 'Commercial\nScaling', color: '#14532d',
+      hw: ['Contract manufacturing', 'Mass-production logistics'],
+      sw: ['Predictive analytics platform', 'Full commercial rollout'],
+    },
   ];
 
   const achievements = [
@@ -231,6 +259,25 @@ export default function HomePage() {
           </h2>
           <p className="text-slate-400 max-w-2xl mx-auto text-lg">{t('solution_subtitle')}</p>
         </div>
+        {/* Product Visual */}
+        <div className="mb-14 relative rounded-3xl overflow-hidden shadow-2xl group" style={{ border: '1px solid rgba(34,197,94,0.2)' }}>
+          <img src="/team/Product Visuals.png" alt="VONeng Container System"
+            className="w-full object-cover max-h-[480px]" style={{ objectPosition: 'center' }} />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
+            <div>
+              <div className="text-green-400 text-xs font-bold uppercase tracking-widest mb-1">The VONeng System</div>
+              <p className="text-white font-bold text-lg leading-snug">Complete energy independence<br />in a single shipping container</p>
+            </div>
+            <div className="flex gap-2 flex-wrap justify-end">
+              {['Solar PV', 'Biogas Digester', 'Micro-CHP', 'BESS', 'Smart Controls'].map(tag => (
+                <span key={tag} className="px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ background: 'rgba(22,163,74,0.25)', border: '1px solid rgba(34,197,94,0.4)', color: '#4ade80' }}>{tag}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="grid md:grid-cols-2 gap-6">
           {solutionSteps.map(({ step, titleKey, descKey, icon }) => (
             <div key={step} className="glass-card-hover p-8 flex gap-6">
@@ -261,26 +308,85 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          ACHIEVEMENTS
+          ROADMAP
       ═══════════════════════════════════════════════════════ */}
-      <section className="py-20" style={{ background: 'rgba(10,26,15,0.5)' }}>
+      <section id="roadmap" className="py-28 overflow-hidden" style={{ background: 'rgba(10,26,15,0.5)' }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-12">
-            <div className="tag mb-6 mx-auto w-fit">{t('milestones_badge')}</div>
-            <h2 className="font-bold text-3xl" style={{ fontFamily: 'Syne, sans-serif' }}>
-              {t('milestones_title')}
+          <div className="text-center mb-16">
+            <div className="tag mb-6 mx-auto w-fit">Product Roadmap</div>
+            <h2 className="font-bold text-3xl mb-3" style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}>
+              Deployment &amp; Development Roadmap
             </h2>
+            <p className="text-slate-400 max-w-xl mx-auto">From research to global scale — hardware and software in parallel.</p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4">
-            {achievements.map(({ labelKey, year, icon }) => (
-              <div key={labelKey} className="glass-card-hover px-6 py-4 flex items-center gap-4">
-                <span className="text-2xl">{icon}</span>
-                <div>
-                  <div className="text-white font-semibold text-sm">{t(labelKey)}</div>
-                  <div className="text-green-500 text-xs font-bold">{year}</div>
+
+          {/* Timeline */}
+          <div className="relative">
+            {/* Connecting line (desktop) */}
+            <div className="hidden lg:block absolute top-[2.75rem] left-[10%] right-[10%] h-px"
+              style={{ background: 'linear-gradient(90deg, #16a34a, #14532d)' }} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4">
+              {roadmap.map(({ phase, name, color, hw, sw }, i) => (
+                <div key={phase} className="flex flex-col items-center relative">
+                  {/* Phase circle */}
+                  <div className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center mb-5 flex-shrink-0 shadow-lg"
+                    style={{ background: `radial-gradient(circle, ${color}40, ${color}20)`, border: `2px solid ${color}` }}>
+                    <span className="font-black text-lg" style={{ color }}>{phase}</span>
+                  </div>
+
+                  {/* Card */}
+                  <div className="w-full glass-card rounded-2xl p-4 flex flex-col gap-3 flex-1 hover:scale-[1.03] transition-transform"
+                    style={{ borderColor: `${color}25` }}>
+                    <h3 className="font-black text-white text-sm leading-tight whitespace-pre-line">{name}</h3>
+
+                    {/* Hardware */}
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="text-sm">🔧</span>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hardware</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {hw.map(item => (
+                          <div key={item} className="px-2 py-1 rounded-lg text-[10px] font-semibold text-green-300 leading-snug"
+                            style={{ background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(34,197,94,0.15)' }}>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Software */}
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <span className="text-sm">💻</span>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Software</span>
+                      </div>
+                      <div className="flex flex-col gap-1">
+                        {sw.map(item => (
+                          <div key={item} className="px-2 py-1 rounded-lg text-[10px] font-semibold text-blue-300 leading-snug"
+                            style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(99,179,237,0.15)' }}>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
+              ))}
+            </div>
+
+            {/* Legend */}
+            <div className="flex justify-center gap-6 mt-10">
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <span className="w-3 h-3 rounded" style={{ background: 'rgba(22,163,74,0.2)', border: '1px solid rgba(34,197,94,0.3)' }} />
+                🔧 Hardware milestones
               </div>
-            ))}
+              <div className="flex items-center gap-2 text-xs text-slate-500">
+                <span className="w-3 h-3 rounded" style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(99,179,237,0.3)' }} />
+                💻 Software milestones
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -297,7 +403,7 @@ export default function HomePage() {
           <p className="text-slate-400 max-w-xl mx-auto text-lg">{t('team_subtitle')}</p>
         </div>
         <div className="flex flex-wrap justify-center gap-6">
-          {team.map(({ name, role, photo }) => (
+          {team.map(({ name, role, photo, linkedin }) => (
             <div key={name} className="glass-card-hover p-6 text-center flex flex-col items-center"
               style={{ width: 'clamp(160px, 18vw, 200px)' }}>
               <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-5 border-2 border-green-500/30 shadow-lg">
@@ -305,7 +411,6 @@ export default function HomePage() {
                   src={photo}
                   alt={name}
                   className="w-full h-full object-cover"
-                  style={{ filter: 'grayscale(100%)', WebkitFilter: 'grayscale(100%)' }}
                   onError={e => {
                     e.target.style.display = 'none';
                     e.target.parentNode.style.background = 'rgba(22,163,74,0.15)';
@@ -314,7 +419,15 @@ export default function HomePage() {
                 />
               </div>
               <h3 className="text-white font-bold text-sm mb-1 leading-snug">{name}</h3>
-              <div className="text-green-500 text-xs font-semibold">{role}</div>
+              <div className="text-green-500 text-xs font-semibold mb-3">{role}</div>
+              <a href={linkedin} target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105"
+                style={{ background: 'rgba(10,102,194,0.15)', border: '1px solid rgba(10,102,194,0.35)', color: '#7eb3f5' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+                LinkedIn
+              </a>
             </div>
           ))}
         </div>
