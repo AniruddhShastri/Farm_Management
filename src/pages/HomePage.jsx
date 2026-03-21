@@ -317,15 +317,10 @@ export default function HomePage() {
             <h2 className="font-bold text-3xl mb-3" style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}>
               Deployment &amp; Development Roadmap
             </h2>
-            <p className="text-slate-400 max-w-xl mx-auto">From research to global scale — hardware and software in parallel.</p>
           </div>
 
           {/* Timeline */}
           <div className="relative">
-            {/* Connecting line (desktop) */}
-            <div className="hidden lg:block absolute top-[2.75rem] left-[10%] right-[10%] h-px"
-              style={{ background: 'linear-gradient(90deg, #16a34a, #14532d)' }} />
-
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4">
               {roadmap.map(({ phase, name, color, hw, sw }, i) => (
                 <div key={phase} className="flex flex-col items-center relative">

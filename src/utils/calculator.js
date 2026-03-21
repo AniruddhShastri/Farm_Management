@@ -41,8 +41,10 @@ export function getEffectiveDigesterVolume(numCows = 0, numPigs = 0, numChickens
 }
 
 /**
- * Annual biogas m³ capped by the 120 m³ digester limit.
- * If farm load exceeds digester capacity, production scales down proportionally.
+ * Organic throughput the 120 m³ digester can actually process per year.
+ * Used only for fertilizer (digestate) cap — NOT for energy calculations.
+ * Digester volume is the physical tank size; biogas energy uses the full
+ * uncapped production figure from getBiogasAnnualM3().
  */
 export function getCappedBiogasAnnualM3(numCows = 0, numPigs = 0, numChickens = 0) {
   const rawM3 = getBiogasAnnualM3(numCows, numPigs, numChickens);
@@ -74,7 +76,9 @@ export function getParasiticLoadFraction(winterTempC) {
 
 export function getBiogasEnergyRaw(numCows = 0, numPigs = 0, numChickens = 0) {
   const { energy } = farmData;
-  const annualBiogasM3 = getCappedBiogasAnnualM3(numCows, numPigs, numChickens);
+  // Uses full uncapped biogas production — digester volume is the physical tank
+  // size, not a constraint on how much biogas the animals produce.
+  const annualBiogasM3 = getBiogasAnnualM3(numCows, numPigs, numChickens);
   const annualEnergyKwh = annualBiogasM3 * energy.biogas_energy_density_kwh_per_m3 * energy.generator_efficiency;
   return Math.round(annualEnergyKwh * 100) / 100;
 }
