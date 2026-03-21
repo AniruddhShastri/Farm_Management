@@ -76,7 +76,7 @@ export default function AdvisorPage() {
   const [step, setStep] = useState('form');
   const [loading, setLoading] = useState(false);
   const [aiOpen, setAiOpen] = useState(false);
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+  const apiKey = true; // API key is handled server-side via /api/gemini
 
   const [location, setLocation] = useState('Madrid, Spain');
   const [cows, setCows] = useState('');

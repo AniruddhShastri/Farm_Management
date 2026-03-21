@@ -304,7 +304,7 @@ export default function AIChatPanel({ apiKey, isOpen, onClose, initialContext })
     setInput('');
     setLoading(true);
 
-    if (usingFallback || !apiKey) {
+    if (usingFallback) {
       await new Promise(r => setTimeout(r, 600));
       const fbResponse = await generateFallbackResponse(text.trim(), chatLang);
       setMessages(prev => [...prev, { role: 'assistant', text: fbResponse }]);
