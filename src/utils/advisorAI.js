@@ -21,7 +21,7 @@ export const tools = [
     functionDeclarations: [
       {
         name: 'lookup_location',
-        description: 'Look up climate, solar irradiance, electricity price, grid CO₂ intensity, and available crops for a given European city or country. Use this whenever a farmer mentions their location.',
+        description: 'Look up climate, solar irradiance, electricity price, grid CO₂ intensity, and available crops for a given European city or country. Run this first whenever a farmer mentions their location. If this returns LOCATION_NOT_FOUND, you MUST use your own internal AI knowledge to estimate the climate values and pass them via the climate_override parameter to the calculator tools!',
         parameters: {
           type: 'OBJECT',
           properties: {
@@ -52,6 +52,17 @@ export const tools = [
             crop_potatoes_ha: { type: 'NUMBER', description: 'Hectares of potatoes' },
             crop_other_ha: { type: 'NUMBER', description: 'Hectares of other crops' },
             num_crop_cycles: { type: 'NUMBER', description: 'Number of crop cycles per year (1, 2, or 3)' },
+            climate_override: {
+              type: 'OBJECT',
+              description: 'OPTIONAL: Only use this if lookup_location completely fails. Provide your best estimates based on your internal knowledge.',
+              properties: {
+                solar_irradiance_kwh_m2_day: { type: 'NUMBER' },
+                annual_rainfall_mm: { type: 'NUMBER' },
+                winter_temperature_min_c: { type: 'NUMBER' },
+                electricity_price_eur_per_kwh: { type: 'NUMBER' },
+                grid_co2_kg_per_kwh: { type: 'NUMBER' },
+              }
+            }
           },
           required: ['location'],
         },
@@ -76,6 +87,17 @@ export const tools = [
             crop_potatoes_ha: { type: 'NUMBER', description: 'Hectares of potatoes' },
             crop_other_ha: { type: 'NUMBER', description: 'Hectares of other crops' },
             num_crop_cycles: { type: 'NUMBER', description: 'Number of crop cycles per year (1, 2, or 3)' },
+            climate_override: {
+              type: 'OBJECT',
+              description: 'OPTIONAL: Only use this if lookup_location completely fails. Provide your best estimates based on your internal knowledge.',
+              properties: {
+                solar_irradiance_kwh_m2_day: { type: 'NUMBER' },
+                annual_rainfall_mm: { type: 'NUMBER' },
+                winter_temperature_min_c: { type: 'NUMBER' },
+                electricity_price_eur_per_kwh: { type: 'NUMBER' },
+                grid_co2_kg_per_kwh: { type: 'NUMBER' },
+              }
+            }
           },
           required: ['location'],
         },
@@ -100,18 +122,93 @@ export const tools = [
    Called when Gemini requests a function call.
 ───────────────────────────────────────────────────────── */
 
-function findLocation(locationStr) {
-  // Try exact match first
-  if (locationData.locations[locationStr]) return [locationStr, locationData.locations[locationStr]];
-  // Try partial / country match
+async function findLocation(locationStr, climateOverride = null) {
+  if (!locationStr) return [null, null];
+
+  // If the AI passed an override (because lookup failed), use its estimates!
+  if (climateOverride && Object.keys(climateOverride).length > 0) {
+    return [`${locationStr} (AI Estimated Data)`, {
+      temperature: climateOverride.winter_temperature_min_c + 12 || 15,
+      winter_temperature_min_c: climateOverride.winter_temperature_min_c || 0,
+      humidity: 60,
+      annual_rainfall_mm: climateOverride.annual_rainfall_mm || 600,
+      solar_irradiance_kwh_m2_day: climateOverride.solar_irradiance_kwh_m2_day || 3.5,
+      electricity_price_eur: climateOverride.electricity_price_eur_per_kwh || 0.20,
+      export_price_eur: (climateOverride.electricity_price_eur_per_kwh || 0.20) * 0.3,
+      grid_co2_kg_per_kwh: climateOverride.grid_co2_kg_per_kwh || 0.200,
+      crops: ["wheat", "barley", "corn", "potatoes"]
+    }];
+  }
+
   const lowerQuery = locationStr.toLowerCase();
+
+  // 1. Exact or partial match
   for (const [key, val] of Object.entries(locationData.locations)) {
-    if (key.toLowerCase().includes(lowerQuery) || lowerQuery.includes(key.toLowerCase().split(',')[1]?.trim() || '')) {
+    if (key.toLowerCase().includes(lowerQuery) || lowerQuery.includes(key.toLowerCase())) {
       return [key, val];
     }
   }
+
+  // 2. LIVE OPEN-METEO API FETCH FOR UNKNOWN GLOBAL CITIES
+  try {
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(locationStr)}&count=1`);
+    const geoData = await geoRes.json();
+    if (!geoData.results || !geoData.results[0]) return [null, null];
+
+    const loc = geoData.results[0];
+    const lat = loc.latitude;
+    const lng = loc.longitude;
+    const locName = `${loc.name}, ${loc.country}`;
+
+    // Fetch 1 full historical year of weather data (2023) for actual averages
+    // shortwave_radiation_sum is in MJ/m^2 which converts to kWh by mapping * (1/3.6)
+    const weatherRes = await fetch(`https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=2023-01-01&end_date=2023-12-31&daily=temperature_2m_min,precipitation_sum,shortwave_radiation_sum&timezone=auto`);
+    const weatherData = await weatherRes.json();
+
+    let totalRain = 0;
+    let totalSolarMJ = 0;
+    let winTemp = 50;
+    let validDays = 0;
+
+    if (weatherData && weatherData.daily) {
+      const p = weatherData.daily.precipitation_sum || [];
+      const s = weatherData.daily.shortwave_radiation_sum || [];
+      const t = weatherData.daily.temperature_2m_min || [];
+
+      for (let i = 0; i < p.length; i++) {
+        if (p[i] !== null) totalRain += p[i];
+        if (s[i] !== null) { totalSolarMJ += s[i]; validDays++; }
+        if (t[i] !== null && t[i] < winTemp) winTemp = t[i];
+      }
+    }
+
+    const avgSolarMJ = validDays > 0 ? (totalSolarMJ / validDays) : 12;
+    const avgSolarKwh = avgSolarMJ / 3.6; 
+
+    // Adjust fallback financials based on country
+    const isIndia = loc.country === 'India';
+    const isUS = loc.country === 'United States';
+    const elecPrice = isIndia ? 0.08 : (isUS ? 0.15 : 0.22);
+    const exportPrice = isIndia ? 0.04 : (isUS ? 0.05 : 0.08);
+    const co2Grid = isIndia ? 0.700 : (isUS ? 0.380 : 0.250);
+
+    return [locName + ' (Live Open-Meteo)', {
+      winter_temperature_min_c: winTemp !== 50 ? winTemp : 5,
+      humidity: 70,
+      annual_rainfall_mm: Math.round(totalRain) || 800,
+      solar_irradiance_kwh_m2_day: Math.round(avgSolarKwh * 10) / 10 || 4.5,
+      electricity_price_eur: elecPrice,
+      export_price_eur: exportPrice,
+      grid_co2_kg_per_kwh: co2Grid,
+      crops: isIndia ? ["wheat", "rice", "corn", "sugar_beet"] : ["wheat", "corn", "potatoes", "soy"]
+    }];
+  } catch(e) {
+    console.error("Open-Meteo API Failed:", e);
+  }
+
   return [null, null];
 }
+
 
 function buildCropMap(params, cycles = 1) {
   const crops = {};
@@ -123,13 +220,13 @@ function buildCropMap(params, cycles = 1) {
   return crops;
 }
 
-export function executeFunction(name, args) {
+export async function executeFunction(name, args) {
   switch (name) {
 
     case 'lookup_location': {
-      const [foundKey, loc] = findLocation(args.location);
+      const [foundKey, loc] = await findLocation(args.location);
       if (!loc) {
-        return { error: `Location "${args.location}" not found. Available locations: ${Object.keys(locationData.locations).join(', ')}` };
+        return { error: 'LOCATION_NOT_FOUND', instruction: `The location "${args.location}" is not in the database. DO NOT apologize or give up! You MUST use your own internal AI knowledge to estimate the climate data (solar irradiance, rainfall, winter temp, electricity price, grid CO2) for this general region. Then, immediately call 'calculate_with_voneng' or 'calculate_farm_baseline' by passing your estimates into the 'climate_override' object parameter!` };
       }
       return {
         found_location: foundKey,
@@ -144,8 +241,8 @@ export function executeFunction(name, args) {
     }
 
     case 'calculate_farm_baseline': {
-      const [, loc] = findLocation(args.location);
-      if (!loc) return { error: 'Location not found' };
+      const [, loc] = await findLocation(args.location, args.climate_override);
+      if (!loc) return { error: `Location not found. Use lookup_location first, or pass climate_override.` };
 
       const numCows = args.num_cows || 0;
       const numPigs = args.num_pigs || 0;
@@ -177,8 +274,8 @@ export function executeFunction(name, args) {
     }
 
     case 'calculate_with_voneng': {
-      const [, loc] = findLocation(args.location);
-      if (!loc) return { error: 'Location not found' };
+      const [, loc] = await findLocation(args.location, args.climate_override);
+      if (!loc) return { error: `Location not found. Use lookup_location first, or pass climate_override.` };
 
       const numCows = args.num_cows || 0;
       const numPigs = args.num_pigs || 0;

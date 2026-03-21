@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { tools, executeFunction, SYSTEM_PROMPT } from '../utils/advisorAI';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-2.5-flash';
 
 /* ── Per-language welcome messages ── */
 const WELCOME = {
@@ -83,7 +83,7 @@ function parseMessage(text) {
     const n = nums.find(n => n > 0 && n < 5000);
     if (n) updates.cows = n;
   }
-  if (lower.includes('pig') || lower.includes('porc') || lower.includes('cerdo')) {
+  if (lower.includes('pig') || lower.includes('porc') || lower.includes('cerdo') || lower.includes('सूअर')) {
     const n = nums.find(n => n > 0 && n < 50000);
     if (n) updates.pigs = n;
   }
@@ -114,10 +114,22 @@ function parseMessage(text) {
     const n = nums.find(n => n > 0 && n < 100000);
     if (n) updates.cropWheatHa = n;
   }
+
+  // If no location was matched but the user provided text and we don't have a location yet...
+  if (!updates.location && !fallbackState.location) {
+    const textLetters = text.replace(/[\d\.,]/g, '').trim();
+    if (textLetters.length >= 2) {
+      const remainingWords = textLetters.split(/\s+/).filter(w => !lower.match(/(cow|vache|vaca|गाय|pig|porc|cerdo|सूअर|chicken|poule|pollo|hen|मुर्गी)/));
+      if (remainingWords.length > 0) {
+        updates.location = textLetters; // Fallback to accepting their text as the location
+      }
+    }
+  }
+
   return updates;
 }
 
-function generateFallbackResponse(userText) {
+async function generateFallbackResponse(userText, lang = 'en') {
   const updates = parseMessage(userText);
   Object.assign(fallbackState, updates);
   const s = fallbackState;
@@ -125,77 +137,87 @@ function generateFallbackResponse(userText) {
   const totalHa = s.cropWheatHa + s.cropCornHa + s.cropSunflowerHa + s.cropBarleyHa + s.cropOtherHa;
   const hasData = s.location && (hasAnimals || totalHa > 0);
 
+  const tGotIt = { en: 'Got it!', es: '¡Entendido!', hi: 'समझ गया!', fr: 'Compris !' };
+  const tNeedLoc = { en: '📍 Where is your farm? (country or nearest city)', es: '📍 ¿Dónde está tu granja? (país o ciudad)', hi: '📍 आपका खेत कहाँ है? (देश या शहर)', fr: '📍 Où se trouve votre ferme ?' };
+  const tNeedAnim = { en: '🐄 How many animals do you have? (cows, pigs, chickens)', es: '🐄 ¿Cuántos animales tienes? (vacas, cerdos, pollos)', hi: '🐄 आपके पास कितने जानवर हैं? (गायें, सूअर, मुर्गियां)', fr: '🐄 Combien d\'animaux avez-vous ?' };
+  const tNeedCrops = { en: '🌾 What crops do you grow, and how many hectares?', es: '🌾 ¿Qué cultivas y cuántas hectáreas?', hi: '🌾 आप कौन सी फसलें उगाते हैं और कितने हेक्टेयर में?', fr: '🌾 Quelles cultures produisez-vous ?' };
+  const tJustMore = { en: 'Just a couple more details:', es: 'Solo unos detalles más:', hi: 'बस कुछ और विवरण:', fr: 'Encore quelques détails :' };
+  const tCalculate = { en: 'To calculate your savings, I need:', es: 'Para calcular tus ahorros, necesito:', hi: 'आपकी बचत की गणना करने के लिए, मुझे चाहिए:', fr: 'Pour calculer vos économies, j\'ai besoin de :' };
+  
+  const labelCows = { en: 'cows', es: 'vacas', hi: 'गायें', fr: 'vaches' };
+  const labelPigs = { en: 'pigs', es: 'cerdos', hi: 'सूअर', fr: 'porcs' };
+  const labelChickens = { en: 'chickens', es: 'pollos', hi: 'मुर्गियां', fr: 'poulets' };
+  const labelCrops = { en: 'ha crops', es: 'ha cultivos', hi: 'हेक्टेयर फसल', fr: 'ha cultures' };
+
   if (hasData) {
     fallbackState.stage = 'results';
-    const baseline = executeFunction('calculate_farm_baseline', {
+    const genericClimate = {
+      solar_irradiance_kwh_m2_day: 4.0, // generous average
+      annual_rainfall_mm: 650,
+      winter_temperature_min_c: 5,
+      electricity_price_eur_per_kwh: 0.22,
+      grid_co2_kg_per_kwh: 0.200,
+    };
+
+    const baseline = await executeFunction('calculate_farm_baseline', {
       location: s.location, num_cows: s.cows, num_pigs: s.pigs, num_chickens: s.chickens,
       crop_wheat_ha: s.cropWheatHa, crop_corn_ha: s.cropCornHa,
       crop_sunflower_ha: s.cropSunflowerHa, crop_barley_ha: s.cropBarleyHa,
       num_crop_cycles: s.cycles,
     });
-    const voneng = executeFunction('calculate_with_voneng', {
+    const voneng = await executeFunction('calculate_with_voneng', {
       location: s.location, num_cows: s.cows, num_pigs: s.pigs, num_chickens: s.chickens,
       roof_area_m2: s.roofM2 || 300, crop_wheat_ha: s.cropWheatHa, crop_corn_ha: s.cropCornHa,
       crop_sunflower_ha: s.cropSunflowerHa, crop_barley_ha: s.cropBarleyHa,
       num_crop_cycles: s.cycles,
     });
+
     if (baseline.error || voneng.error) {
-      return `I had trouble finding data for "${s.location}". Could you try a nearby city, for example "near Madrid" or "in Germany"?`;
+      const errTexts = {
+        en: `I had trouble finding data for "${s.location}". Could you try a nearby city?`,
+        es: `No pude encontrar datos para "${s.location}". ¿Podrías intentar con una ciudad cercana?`,
+        hi: `मुझे "${s.location}" के लिए डेटा नहीं मिला। क्या आप कोई नजदीकी शहर बता सकते हैं?`,
+        fr: `Je n'ai pas trouvé de données pour "${s.location}". Pourriez-vous essayer une ville proche ?`
+      };
+      return errTexts[lang] || errTexts.en;
     }
-    const animalList = [
-      s.cows > 0 ? `${s.cows} dairy cows` : '',
-      s.pigs > 0 ? `${s.pigs} pigs` : '',
-      s.chickens > 0 ? `${s.chickens} chickens` : '',
-    ].filter(Boolean).join(', ');
-    const cropList = [
-      s.cropWheatHa > 0 ? `${s.cropWheatHa} ha wheat` : '',
-      s.cropCornHa > 0 ? `${s.cropCornHa} ha corn` : '',
-      s.cropSunflowerHa > 0 ? `${s.cropSunflowerHa} ha sunflower` : '',
-    ].filter(Boolean).join(', ');
-    const cycleNote = s.cycles > 1 ? ` · ${s.cycles} crop cycles/year` : '';
 
-    return `📍 ${s.location}${animalList ? `\n🐾 ${animalList}` : ''}${cropList ? `\n🌾 ${cropList}${cycleNote}` : ''}${s.roofM2 ? `\n🏠 ${s.roofM2} m² roof` : ''}
+    const tToday = { en: '💸 YOUR FARM TODAY', es: '💸 TU GRANJA HOY', hi: '💸 आपका खेत आज', fr: '💸 VOTRE FERME AUJOURD\'HUI' };
+    const tElecCost = { en: 'Electricity cost', es: 'Costo eléctrico', hi: 'बिजली खर्च', fr: 'Coût électrique' };
+    const tFertCost = { en: 'Chemical fertilizer', es: 'Fertilizante químico', hi: 'रासायनिक उर्वरक', fr: 'Engrais chimique' };
+    const tWithVon = { en: '🟢 WITH VONENG', es: '🟢 CON VONENG', hi: '🟢 VONENG के साथ', fr: '🟢 AVEC VONENG' };
+    const tElecSav = { en: 'Electricity savings', es: 'Ahorro eléctrico', hi: 'बिजली की बचत', fr: 'Éco. d\'électricité' };
+    const tFertSav = { en: 'Fertilizer savings', es: 'Ahorro fertilizante', hi: 'उर्वरक की बचत', fr: 'Éco. d\'engrais' };
 
-💸 YOUR FARM TODAY
-   Electricity cost:     ~€${fmt(baseline.annual_electricity_cost_eur)}/year
-   Chemical fertilizer:  ~€${fmt(baseline.annual_fertilizer_cost_eur)}/year
-   Total annual cost:    ~€${fmt(baseline.total_annual_cost_eur)}/year
-   CO₂ emissions:        ~${baseline.annual_co2_emissions_tons} tons/year
+    return `📍 ${s.location}
+${hasAnimals ? `🐾 ${[s.cows>0?`${s.cows} ${labelCows[lang]}`:'', s.pigs>0?`${s.pigs} ${labelPigs[lang]}`:'', s.chickens>0?`${s.chickens} ${labelChickens[lang]}`:''].filter(Boolean).join(', ')}` : ''}
 
-🟢 WITH VONENG
-   Electricity savings:       €${fmt(voneng.electricity_savings_eur)}/year
-   Fertilizer savings:        €${fmt(voneng.fertilizer_savings_eur_digestate)}/year
-   Carbon credit potential:   €${fmt(voneng.carbon_credit_potential_eur)}/year
-   ─────────────────────────────────────
-   💰 Total annual value:     €${fmt(voneng.total_annual_value_eur)}/year
+${tToday[lang]}
+   ${tElecCost[lang]}: €${fmt(baseline.annual_electricity_cost_eur)}
+   ${tFertCost[lang]}: €${fmt(baseline.annual_fertilizer_cost_eur)}
 
-   🌍 Carbon offset: ${voneng.total_carbon_offset_tons_co2e} tons CO₂e/year
-   ⚡ Energy independence: ${voneng.energy_independence_percent}%
-
-📦 ONE CONTAINER DELIVERS:
-   Solar panels · Biogas digester · CHP engine · Battery storage
-
-📞 Want to learn more? Scroll down and fill in your contact details, our team will reach out within 24 hours.
-
-These are expert estimates based on your farm details.`;
+${tWithVon[lang]}
+   ${tElecSav[lang]}: €${fmt(voneng.electricity_savings_eur)}
+   ${tFertSav[lang]}: €${fmt(voneng.fertilizer_savings_eur_digestate)}
+   ────────────────────────
+   💰 Total: €${fmt(voneng.total_annual_value_eur)}`;
   }
 
   fallbackState.stage = 'collecting';
   const missing = [];
-  if (!s.location) missing.push('📍 Where is your farm? (country or nearest city)');
-  if (!hasAnimals) missing.push('🐄 How many animals do you have? (cows, pigs, chickens)');
-  if (totalHa === 0) missing.push('🌾 What crops do you grow, and how many hectares?');
-  if (s.roofM2 === 0) missing.push('🏠 Any roof or land for solar panels? (approx. m²)');
+  if (!s.location) missing.push(tNeedLoc[lang] || tNeedLoc.en);
+  if (!hasAnimals) missing.push(tNeedAnim[lang] || tNeedAnim.en);
+  if (totalHa === 0) missing.push(tNeedCrops[lang] || tNeedCrops.en);
 
   const alreadyKnow = [
     s.location ? `📍 ${s.location}` : '',
-    hasAnimals ? `🐾 ${[s.cows > 0 ? `${s.cows} cows` : '', s.pigs > 0 ? `${s.pigs} pigs` : '', s.chickens > 0 ? `${s.chickens} chickens` : ''].filter(Boolean).join(', ')}` : '',
-    totalHa > 0 ? `🌾 ${totalHa} ha crops` : '',
+    hasAnimals ? `🐾 ${[s.cows>0?`${s.cows} ${labelCows[lang]}`:'', s.pigs>0?`${s.pigs} ${labelPigs[lang]}`:'', s.chickens>0?`${s.chickens} ${labelChickens[lang]}`:''].filter(Boolean).join(', ')}` : '',
+    totalHa > 0 ? `🌾 ${totalHa} ${labelCrops[lang]}` : '',
   ].filter(Boolean);
 
   const prefix = alreadyKnow.length > 0
-    ? `Got it!\n${alreadyKnow.join('\n')}\n\nJust a couple more details:\n`
-    : `To calculate your savings, I need:\n`;
+    ? `${tGotIt[lang] || tGotIt.en}\n${alreadyKnow.join('\n')}\n\n${tJustMore[lang] || tJustMore.en}\n`
+    : `${tCalculate[lang] || tCalculate.en}\n`;
 
   return prefix + missing.slice(0, 2).join('\n');
 }
@@ -242,7 +264,7 @@ function MessageBubble({ message }) {
 /* ══════════════════════════════════════════════════════════
    MAIN CHAT PANEL
 ══════════════════════════════════════════════════════════ */
-export default function AIChatPanel({ apiKey, isOpen, onClose }) {
+export default function AIChatPanel({ apiKey, isOpen, onClose, initialContext }) {
   const { setLang: setGlobalLang, t } = useLanguage();
   const [chatLang, setChatLang] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -284,7 +306,8 @@ export default function AIChatPanel({ apiKey, isOpen, onClose }) {
 
     if (usingFallback || !apiKey) {
       await new Promise(r => setTimeout(r, 600));
-      setMessages(prev => [...prev, { role: 'assistant', text: generateFallbackResponse(text.trim()) }]);
+      const fbResponse = await generateFallbackResponse(text.trim(), chatLang);
+      setMessages(prev => [...prev, { role: 'assistant', text: fbResponse }]);
       setLoading(false);
       return;
     }
@@ -311,10 +334,10 @@ export default function AIChatPanel({ apiKey, isOpen, onClose }) {
           currentHistory = [...currentHistory, { role: 'model', parts: [{ text: textParts }] }];
           break;
         }
-        const funcResults = functionCalls.map(p => ({
+        const funcResults = await Promise.all(functionCalls.map(async p => ({
           name: p.functionCall.name,
-          response: executeFunction(p.functionCall.name, p.functionCall.args || {}),
-        }));
+          response: await executeFunction(p.functionCall.name, p.functionCall.args || {}),
+        })));
         currentHistory = [
           ...currentHistory,
           { role: 'model', parts },
@@ -328,7 +351,8 @@ export default function AIChatPanel({ apiKey, isOpen, onClose }) {
       console.warn('Gemini unavailable, switching to fallback:', err.message);
       setUsingFallback(true);
       await new Promise(r => setTimeout(r, 500));
-      setMessages(prev => [...prev, { role: 'assistant', text: generateFallbackResponse(text.trim()) }]);
+      const fbResponse = await generateFallbackResponse(text.trim(), chatLang);
+      setMessages(prev => [...prev, { role: 'assistant', text: fbResponse }]);
     } finally {
       setLoading(false);
     }
@@ -340,11 +364,15 @@ export default function AIChatPanel({ apiKey, isOpen, onClose }) {
       ? `CRITICAL LANGUAGE RULE — YOU MUST FOLLOW THIS ABOVE ALL ELSE:\nThe farmer has selected ${langInfo.label} (language code: ${language}) as their language.\nYOU MUST WRITE EVERY SINGLE WORD OF YOUR RESPONSE IN ${langInfo.label.toUpperCase()} ONLY.\nDO NOT write any English text. DO NOT switch languages mid-response.\nEven numbers, units, and technical terms must appear with ${langInfo.label} context.\nThis rule applies to EVERY message in this conversation, without exception.\n\n`
       : '';
 
+    const contextStr = initialContext 
+      ? `\n\nUSER'S CURRENT FORM DATA:\n${JSON.stringify(initialContext, null, 2)}\nUse this context if the user asks about their farm (e.g., "my crops" or "my cows") without explicitly specifying quantities. Note that some values may be empty if the user hasn't filled them out yet.` 
+      : '';
+
     return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system_instruction: { parts: [{ text: langPrefix + SYSTEM_PROMPT }] },
+        system_instruction: { parts: [{ text: langPrefix + SYSTEM_PROMPT + contextStr }] },
         contents: history,
         tools: tools,
         generationConfig: { temperature: 0.6, maxOutputTokens: 2048 },

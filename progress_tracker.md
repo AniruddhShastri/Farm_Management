@@ -53,9 +53,13 @@
 | `calculate_farm_baseline` tool | ✅ Done | Full cost + emissions baseline |
 | `calculate_with_voneng` tool | ✅ Done | Savings, carbon offset, energy independence |
 | `get_grid_regulations` tool | ✅ Done | Queries `regulatoryData.json` |
-| Rule-based fallback engine | ✅ Done | Works without API key, parses natural language |
+| Rule-based fallback engine | ✅ Done | Expanded to support generic cities, full translation (EN/ES/FR/HI) & offline parsing. |
+| Context Injection | ✅ Done | Expert dashboard UI values dynamically passed to Gemini's system prompt. |
+| Asynchronous Execution | ✅ Done | Underlying architecture upgraded to asynchronous `await executeFunction()`. |
+| Live Real-Weather API | ✅ Done | Connects to Open-Meteo historical APIs to generate pristine data for missing cities globally. |
 | Language picker (in-chat) | ✅ Done | 4 language bubbles, syncs to global site language |
 | Language persistence per message | ✅ Done | Strong system prompt prefix with language mandate |
+| Offline Hindi Parsing | ✅ Done | Fallback engine effectively scans native Devanagari text like "सूअर" and "कानपुर" |
 | Suggestion chips per language | ✅ Done | `SUGGESTIONS_BY_LANG` for EN/ES/HI/FR |
 | Clear chat / reset | ✅ Done | Trash icon resets history and language |
 

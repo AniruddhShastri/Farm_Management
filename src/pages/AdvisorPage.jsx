@@ -514,6 +514,7 @@ export default function AdvisorPage() {
         apiKey={apiKey}
         isOpen={aiOpen}
         onClose={() => setAiOpen(false)}
+        initialContext={{ location, cows, pigs, chickens, roofArea, solarArea, crops }}
       />
     </div>
   );
