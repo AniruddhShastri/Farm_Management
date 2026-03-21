@@ -7,6 +7,17 @@ export default defineConfig(({ mode }) => {
 
   return {
     plugins: [react()],
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'firebase': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+            'recharts': ['recharts'],
+          },
+        },
+      },
+    },
     server: {
       proxy: {
         '/api/gemini': {
