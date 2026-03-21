@@ -3,6 +3,7 @@ import regulatoryData from '../data/regulatoryData.json';
 import {
   getBiogasEnergy,
   getBiogasAnnualM3,
+  getCappedBiogasAnnualM3,
   getSolarEnergy,
   getCarbonImpact,
   getEnergyRequirement,
@@ -309,9 +310,10 @@ export async function executeFunction(name, args) {
       const methaneSaved = getMethaneSavingsCo2e(annualBiogasM3, 'open_lagoon');
       const totalCarbonOffset = (parseFloat(co2Avoided) + carbonBiochar + methaneSaved).toFixed(1);
 
-      // Digestate
-      const digestateLiters = getDigestateLiters(annualBiogasM3);
-      const digestateSavings = Math.round(getDigestateSavingsEur(annualBiogasM3));
+      // Digestate — capped by 120 m³ digester volume (physical tank capacity)
+      const cappedBiogasM3 = getCappedBiogasAnnualM3(numCows, numPigs, numChickens);
+      const digestateLiters = getDigestateLiters(cappedBiogasM3);
+      const digestateSavings = Math.round(getDigestateSavingsEur(cappedBiogasM3));
 
       // Rainwater
       const waterHarvestKL = Math.round(getWaterHarvest(roofM2, rainfall) / 1000);

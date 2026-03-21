@@ -7,6 +7,7 @@ import locationData from '../../locationData.json';
 import {
   getBiogasEnergy,
   getBiogasAnnualM3,
+  getCappedBiogasAnnualM3,
   getSolarEnergy,
   getCarbonImpact,
   getCO2Avoided,
@@ -156,7 +157,7 @@ export default function AdvisorPage() {
       const carbonImpact = getCarbonImpact(cropEffective);
 
       // Methane savings: getMethaneSavingsCo2e expects (annualBiogasM3, manureManagement)
-      const annualBiogasM3 = getBiogasAnnualM3(numCows, numPigs, numChickens);
+      const annualBiogasM3 = getCappedBiogasAnnualM3(numCows, numPigs, numChickens);
       const methaneSaved = getMethaneSavingsCo2e(annualBiogasM3, 'open_lagoon');
       const totalCarbonOffset = co2Avoided + carbonImpact + methaneSaved;
 
