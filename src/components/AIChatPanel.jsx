@@ -3,9 +3,6 @@ import { tools, executeFunction, SYSTEM_PROMPT } from '../utils/advisorAI';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 
 const GEMINI_MODEL = 'gemini-2.5-flash';
-const GEMINI_BASE = import.meta.env.DEV
-  ? '/api/gemini'
-  : 'https://generativelanguage.googleapis.com';
 
 /* ── Per-language welcome messages ── */
 const WELCOME = {
@@ -371,7 +368,7 @@ export default function AIChatPanel({ apiKey, isOpen, onClose, initialContext })
       ? `\n\nUSER'S CURRENT FORM DATA:\n${JSON.stringify(initialContext, null, 2)}\nUse this context if the user asks about their farm (e.g., "my crops" or "my cows") without explicitly specifying quantities. Note that some values may be empty if the user hasn't filled them out yet.` 
       : '';
 
-    return fetch(`${GEMINI_BASE}/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`, {
+    return fetch(`/api/gemini?model=${GEMINI_MODEL}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

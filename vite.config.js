@@ -1,17 +1,26 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [react()],
-  server: {
-    proxy: {
-      '/api/gemini': {
-        target: 'https://generativelanguage.googleapis.com',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/gemini/, ''),
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  const geminiKey = env.VITE_GEMINI_API_KEY || '';
+
+  return {
+    plugins: [react()],
+    server: {
+      proxy: {
+        '/api/gemini': {
+          target: 'https://generativelanguage.googleapis.com',
+          changeOrigin: true,
+          configure: (proxy) => {
+            proxy.on('proxyReq', (proxyReq, req) => {
+              const params = new URLSearchParams(req.url.split('?')[1] || '');
+              const model = params.get('model') || 'gemini-2.5-flash';
+              proxyReq.path = `/v1beta/models/${model}:generateContent?key=${geminiKey}`;
+            });
+          },
+        },
       },
     },
-  },
-})
-
+  };
+});
