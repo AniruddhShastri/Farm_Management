@@ -59,9 +59,11 @@ export default function HomePage() {
   ];
 
   const team = [
-    { name: 'Aniruddh Shastri', roleKey: 'team1_role', bioKey: 'team1_bio', initials: 'AS', color: '#16a34a' },
-    { name: 'Engineering Lead', roleKey: 'team2_role', bioKey: 'team2_bio', initials: 'EL', color: '#0d9488' },
-    { name: 'Data Science Lead', roleKey: 'team3_role', bioKey: 'team3_bio', initials: 'DS', color: '#7c3aed' },
+    { name: 'Aniruddh Shastri',            role: 'CEO',                      photo: '/team/Aniruddh.jpeg' },
+    { name: 'Juan Camilo Quiroga Manrique', role: 'Supply Chain Lead',        photo: '/team/Juan.jpeg' },
+    { name: 'Karthik Roshan Bharathraj',    role: 'Electrical Systems Lead',  photo: '/team/Karthik.jpeg' },
+    { name: 'Leonardo Vicentini Bonatto',   role: 'Finance Lead',             photo: '/team/Leornado.jpeg' },
+    { name: 'Tejan Sunil Shinde',           role: 'Mechanical Systems Lead',  photo: '/team/Tejan.jpeg' },
   ];
 
   const achievements = [
@@ -294,16 +296,25 @@ export default function HomePage() {
           </h2>
           <p className="text-slate-400 max-w-xl mx-auto text-lg">{t('team_subtitle')}</p>
         </div>
-        <div className="grid md:grid-cols-3 gap-8">
-          {team.map(({ name, roleKey, bioKey, initials, color }) => (
-            <div key={name} className="glass-card-hover p-8 text-center">
-              <div className="w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-6"
-                style={{ background: `radial-gradient(circle, ${color}30, ${color}15)`, border: `2px solid ${color}50`, color }}>
-                {initials}
+        <div className="flex flex-wrap justify-center gap-6">
+          {team.map(({ name, role, photo }) => (
+            <div key={name} className="glass-card-hover p-6 text-center flex flex-col items-center"
+              style={{ width: 'clamp(160px, 18vw, 200px)' }}>
+              <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-5 border-2 border-green-500/30 shadow-lg">
+                <img
+                  src={photo}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                  style={{ filter: 'grayscale(100%)', WebkitFilter: 'grayscale(100%)' }}
+                  onError={e => {
+                    e.target.style.display = 'none';
+                    e.target.parentNode.style.background = 'rgba(22,163,74,0.15)';
+                    e.target.parentNode.innerHTML = `<span style="font-size:1.5rem;font-weight:700;color:#22c55e;line-height:6rem">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</span>`;
+                  }}
+                />
               </div>
-              <h3 className="text-white font-bold text-xl mb-1">{name}</h3>
-              <div className="text-green-500 text-sm font-semibold mb-4">{t(roleKey)}</div>
-              <p className="text-slate-400 text-sm leading-relaxed">{t(bioKey)}</p>
+              <h3 className="text-white font-bold text-sm mb-1 leading-snug">{name}</h3>
+              <div className="text-green-500 text-xs font-semibold">{role}</div>
             </div>
           ))}
         </div>

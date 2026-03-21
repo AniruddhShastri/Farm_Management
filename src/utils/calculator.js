@@ -1,8 +1,12 @@
 import farmData from '../../farmData.json';
 import biomassProxy from '../data/biomassProxy.json';
 
+/* ─────────────────────────────────────────────────────────
+   DIGESTER VOLUME & CAPACITY (120 m³ max)
+───────────────────────────────────────────────────────── */
+
 /**
- * Get annual biogas volume in m³ (for digestate and parasitic calculations)
+ * Annual biogas volume in m³ from livestock (uncapped)
  */
 export function getBiogasAnnualM3(numCows = 0, numPigs = 0, numChickens = 0) {
   const { livestock } = farmData;
@@ -13,8 +17,46 @@ export function getBiogasAnnualM3(numCows = 0, numPigs = 0, numChickens = 0) {
 }
 
 /**
- * Parasitic load: fraction of biogas energy deducted for tank heating when ambient < 5°C.
- * If winterTemp >= 5°C returns 0; otherwise 20–30% (colder = higher).
+ * Required digester volume before applying the 120 m³ cap.
+ * Based on Hydraulic Retention Time (HRT) of 30 days.
+ */
+export function getRawDigesterVolume(numCows = 0, numPigs = 0, numChickens = 0) {
+  const dailyM3 = getBiogasAnnualM3(numCows, numPigs, numChickens) / 365;
+  const HRT = 30; // days
+  return Math.round(dailyM3 * HRT * 100) / 100;
+}
+
+/**
+ * Actual digester volume — capped at 120 m³ maximum.
+ */
+export function getDigesterVolume(numCows = 0, numPigs = 0, numChickens = 0) {
+  return Math.min(getRawDigesterVolume(numCows, numPigs, numChickens), 120);
+}
+
+/**
+ * Net effective digester volume: 90% of total (10% headspace reserved for gas).
+ */
+export function getEffectiveDigesterVolume(numCows = 0, numPigs = 0, numChickens = 0) {
+  return Math.round(getDigesterVolume(numCows, numPigs, numChickens) * 0.9 * 100) / 100;
+}
+
+/**
+ * Annual biogas m³ capped by the 120 m³ digester limit.
+ * If farm load exceeds digester capacity, production scales down proportionally.
+ */
+export function getCappedBiogasAnnualM3(numCows = 0, numPigs = 0, numChickens = 0) {
+  const rawM3 = getBiogasAnnualM3(numCows, numPigs, numChickens);
+  const rawVolume = getRawDigesterVolume(numCows, numPigs, numChickens);
+  if (rawVolume <= 120) return rawM3;
+  return Math.round(rawM3 * (120 / rawVolume));
+}
+
+/* ─────────────────────────────────────────────────────────
+   PARASITIC LOAD
+───────────────────────────────────────────────────────── */
+
+/**
+ * Fraction of biogas energy deducted for tank heating when ambient < 5°C.
  */
 export function getParasiticLoadFraction(winterTempC) {
   const { parasitic_load } = farmData;
@@ -25,61 +67,54 @@ export function getParasiticLoadFraction(winterTempC) {
   return Math.min(fraction, parasitic_load.fraction_deduct_max);
 }
 
-/**
- * Calculate biogas energy generation from livestock (gross, before parasitic load)
- */
+/* ─────────────────────────────────────────────────────────
+   BIOGAS ENERGY & CHP SPLIT
+   30% direct use | 70% to Micro-CHP generator
+───────────────────────────────────────────────────────── */
+
 export function getBiogasEnergyRaw(numCows = 0, numPigs = 0, numChickens = 0) {
   const { energy } = farmData;
-  const annualBiogasM3 = getBiogasAnnualM3(numCows, numPigs, numChickens);
+  const annualBiogasM3 = getCappedBiogasAnnualM3(numCows, numPigs, numChickens);
   const annualEnergyKwh = annualBiogasM3 * energy.biogas_energy_density_kwh_per_m3 * energy.generator_efficiency;
   return Math.round(annualEnergyKwh * 100) / 100;
 }
 
-/**
- * Calculate biogas energy generation from livestock (net after parasitic load for heating)
- * @param {number} numCows - Number of dairy cows
- * @param {number} numPigs - Number of pigs
- * @param {number} numChickens - Number of chickens
- * @param {number} winterTempC - Winter minimum ambient temp (°C); if < 5°C, 20–30% deducted for self-heating
- * @returns {number} Net energy in kWh per year
- */
 export function getBiogasEnergy(numCows = 0, numPigs = 0, numChickens = 0, winterTempC = null) {
   const raw = getBiogasEnergyRaw(numCows, numPigs, numChickens);
   if (winterTempC === null || winterTempC === undefined) return raw;
   const fraction = getParasiticLoadFraction(winterTempC);
-  const net = raw * (1 - fraction);
-  return Math.round(net * 100) / 100;
+  return Math.round(raw * (1 - fraction) * 100) / 100;
 }
 
 /**
- * Calculate solar energy generation based on location
- * @param {number} solarArea - Solar panel area in m²
- * @param {number} solarIrradiance - Solar irradiance in kWh/m²/day (location-specific)
- * @returns {number} Total energy in kWh per year
+ * Split biogas net energy into direct use (30%) and Micro-CHP (70%).
  */
+export function getBiogasCHPSplit(numCows = 0, numPigs = 0, numChickens = 0, winterTempC = null) {
+  const net = getBiogasEnergy(numCows, numPigs, numChickens, winterTempC);
+  return {
+    directUseKwh: Math.round(net * 0.30),
+    chpKwh: Math.round(net * 0.70),
+    totalKwh: Math.round(net),
+  };
+}
+
+/* ─────────────────────────────────────────────────────────
+   SOLAR ENERGY
+───────────────────────────────────────────────────────── */
+
 export function getSolarEnergy(solarArea = 0, solarIrradiance = 4.5) {
-  const dailyEnergy = solarArea * solarIrradiance;
-  const annualEnergy = dailyEnergy * 365;
-  return Math.round(annualEnergy * 100) / 100;
+  return Math.round(solarArea * solarIrradiance * 0.20 * 365 * 100) / 100;
 }
 
-/**
- * Solar with inverter clipping: if inverter capacity (kW) is set and panels could exceed it, cap annual generation.
- * Common when e.g. 60 kWp panels on a 50 kW inverter (winter optimization).
- */
 export function getSolarEnergyClipped(solarArea = 0, solarIrradiance = 4.5, inverterCapacityKW = 0) {
   const rawAnnualKwh = getSolarEnergy(solarArea, solarIrradiance);
   if (!inverterCapacityKW || inverterCapacityKW <= 0) return rawAnnualKwh;
   const peakKW = solarArea * 0.2;
   if (peakKW <= inverterCapacityKW) return rawAnnualKwh;
-  const capacityFactor = 0.17;
-  const maxFromInverter = inverterCapacityKW * 8760 * capacityFactor;
+  const maxFromInverter = inverterCapacityKW * 8760 * 0.17;
   return Math.round(Math.min(rawAnnualKwh, maxFromInverter) * 100) / 100;
 }
 
-/**
- * Calculate total energy generation (biogas net + solar, with optional clipping)
- */
 export function getTotalEnergy(numCows = 0, numPigs = 0, numChickens = 0, solarArea = 0, solarIrradiance = 4.5, winterTempC = null, inverterCapacityKW = 0) {
   const biogasEnergy = getBiogasEnergy(numCows, numPigs, numChickens, winterTempC);
   const solarEnergy = inverterCapacityKW > 0
@@ -88,26 +123,40 @@ export function getTotalEnergy(numCows = 0, numPigs = 0, numChickens = 0, solarA
   return biogasEnergy + solarEnergy;
 }
 
+/* ─────────────────────────────────────────────────────────
+   BESS — Battery Energy Storage System
+   PV to BESS ratio: 1 kWp solar : 3 kWh battery
+───────────────────────────────────────────────────────── */
+
 /**
- * Digestate (liquid fertilizer) produced from biogas: liters per year and estimated savings (€/yr)
+ * BESS capacity in kWh based on PV:BESS = 1:3 ratio.
+ * @param {number} solarAreaM2 - Solar panel area in m²
+ * @returns {number} BESS capacity in kWh
  */
+export function getBESSCapacity(solarAreaM2 = 0) {
+  const solarKwp = solarAreaM2 * 0.20; // 20% panel efficiency
+  return Math.round(solarKwp * 3);     // 1:3 ratio
+}
+
+/* ─────────────────────────────────────────────────────────
+   DIGESTATE (FERTILIZER) — capped by digester volume
+───────────────────────────────────────────────────────── */
+
 export function getDigestateLiters(annualBiogasM3) {
   const { digestate } = farmData;
-  const liters = annualBiogasM3 * digestate.liters_per_m3_biogas;
-  return Math.round(liters);
+  return Math.round(annualBiogasM3 * digestate.liters_per_m3_biogas);
 }
 
 export function getDigestateSavingsEur(annualBiogasM3) {
   const liters = getDigestateLiters(annualBiogasM3);
   const { digestate } = farmData;
-  const savings = liters * digestate.fertilizer_value_eur_per_liter;
-  return Math.round(savings * 100) / 100;
+  return Math.round(liters * digestate.fertilizer_value_eur_per_liter * 100) / 100;
 }
 
-/**
- * Recipe check (C:N balance). feedstockMix: { dry_straw, green_leafy, root_starch, sugary_fruit, manure } shares (0–1).
- * Returns { ok, warning, cNRatio }.
- */
+/* ─────────────────────────────────────────────────────────
+   RECIPE CHECK (C:N balance)
+───────────────────────────────────────────────────────── */
+
 export function getRecipeCheck(feedstockMix = {}) {
   const buckets = biomassProxy.buckets;
   const recipe = biomassProxy.recipe;
@@ -122,42 +171,27 @@ export function getRecipeCheck(feedstockMix = {}) {
   const acidic = sugaryShare >= recipe.acidification_warning_if_sugary_share_above;
   const cnOutOfRange = weightedCN < recipe.ideal_c_n_min || weightedCN > recipe.ideal_c_n_max;
 
-  if (acidic) {
-    return {
-      ok: false,
-      warning: 'Feedstock too acidic. Please add manure or straw to balance.',
-      cNRatio: Math.round(weightedCN * 10) / 10,
-      recommendation: recipe.recommendation
-    };
-  }
-  if (cnOutOfRange) {
-    return {
-      ok: false,
-      warning: `C:N ratio (${(weightedCN).toFixed(1)}) is outside ideal range 20–30. Add manure or straw to balance.`,
-      cNRatio: Math.round(weightedCN * 10) / 10,
-      recommendation: recipe.recommendation
-    };
-  }
+  if (acidic) return { ok: false, warning: 'Feedstock too acidic. Add manure or straw to balance.', cNRatio: Math.round(weightedCN * 10) / 10, recommendation: recipe.recommendation };
+  if (cnOutOfRange) return { ok: false, warning: `C:N ratio (${weightedCN.toFixed(1)}) outside ideal 20–30. Add manure or straw.`, cNRatio: Math.round(weightedCN * 10) / 10, recommendation: recipe.recommendation };
   return { ok: true, warning: null, cNRatio: Math.round(weightedCN * 10) / 10 };
 }
 
-/**
- * Methane baseline: CO2e avoided (tons) based on how manure was previously managed.
- * manureManagement: 'open_lagoon' | 'spread_field'
- */
+/* ─────────────────────────────────────────────────────────
+   METHANE BASELINE
+───────────────────────────────────────────────────────── */
+
 export function getMethaneSavingsCo2e(annualBiogasM3, manureManagement = 'open_lagoon') {
   const baseline = farmData.methane_baseline;
   const kgPerM3 = manureManagement === 'open_lagoon'
     ? baseline.open_lagoon_kg_co2e_per_m3_biogas_avoided
     : baseline.spread_field_kg_co2e_per_m3_biogas_avoided;
-  const tons = (annualBiogasM3 * kgPerM3) / 1000;
-  return Math.round(tons * 100) / 100;
+  return Math.round((annualBiogasM3 * kgPerM3 / 1000) * 100) / 100;
 }
 
-/**
- * Revenue stacking: avoided cost, export revenue, carbon credits (€/yr).
- * gridExportLimitKW: max export in kW; 0 = self-consumption only.
- */
+/* ─────────────────────────────────────────────────────────
+   REVENUE STACK
+───────────────────────────────────────────────────────── */
+
 export function getRevenueStack({
   totalGeneratedKwh = 0,
   totalRequiredKwh = 0,
@@ -172,8 +206,7 @@ export function getRevenueStack({
   const maxExportKwhPerYear = gridExportLimitKW > 0 ? gridExportLimitKW * 8760 * 0.15 : 0;
   const exportKwh = Math.min(potentialExportKwh, maxExportKwhPerYear);
   const exportRevenueEur = exportKwh * exportPriceEurPerKwh;
-  const greenKwh = totalGeneratedKwh;
-  const carbonCreditsEur = greenKwh * carbonCreditEurPerKwh;
+  const carbonCreditsEur = totalGeneratedKwh * carbonCreditEurPerKwh;
   return {
     avoidedCostEur: Math.round(avoidedCostEur * 100) / 100,
     exportRevenueEur: Math.round(exportRevenueEur * 100) / 100,
@@ -184,185 +217,128 @@ export function getRevenueStack({
   };
 }
 
-/**
- * Calculate rainwater harvesting potential
- * @param {number} roofArea - Roof area in m²
- * @param {number} rainfall - Annual rainfall in mm
- * @returns {number} Total water in liters per year
- */
+/* ─────────────────────────────────────────────────────────
+   WATER
+───────────────────────────────────────────────────────── */
+
 export function getWaterHarvest(roofArea = 0, rainfall = 0) {
   const { water } = farmData;
-  // Convert mm to liters: 1 mm = 1 liter per m²
-  const totalWaterLiters = roofArea * rainfall * water.roof_runoff_coefficient;
-  return Math.round(totalWaterLiters);
+  return Math.round(roofArea * rainfall * water.roof_runoff_coefficient);
 }
 
-/**
- * Calculate water requirement for the farm
- * Based on livestock and crops (accounting for seasonal rotation)
- * @param {number} numCows - Number of dairy cows
- * @param {number} numPigs - Number of pigs
- * @param {number} numChickens - Number of chickens
- * @param {object} cropAreas - Object with crop names as keys and hectares as values
- * @returns {number} Total water requirement in liters per year
- */
 export function getWaterRequirement(numCows = 0, numPigs = 0, numChickens = 0, cropAreas = {}) {
-  // Average water consumption per animal per day (liters)
-  const cowWaterPerDay = 100; // liters per cow per day
-  const pigWaterPerDay = 15; // liters per pig per day
-  const chickenWaterPerDay = 0.3; // liters per chicken per day
-
-  // Average irrigation requirement per hectare per year (liters)
-  // Accounting for 3 seasons (4 months each) and 1 month fallow per season
-  const cropWaterPerHa = 5000000; // Average 5000 m³ = 5,000,000 L per hectare per year
-
-  // Calculate livestock water requirement
-  const livestockWater = (numCows * cowWaterPerDay + numPigs * pigWaterPerDay + numChickens * chickenWaterPerDay) * 365;
-
-  // Calculate crop irrigation requirement (sum of all crop areas)
-  const totalCropArea = Object.values(cropAreas).reduce((sum, area) => sum + (area || 0), 0);
-  // Account for seasonal rotation: 3 seasons of 4 months = 9 months active, 3 months fallow
-  const activeCropMonths = 9; // 3 seasons × 3 months active (4 months crop - 1 month fallow)
-  const cropWater = totalCropArea * cropWaterPerHa * (activeCropMonths / 12);
-
-  const totalWaterRequired = livestockWater + cropWater;
-  return Math.round(totalWaterRequired);
+  const livestockWater = (numCows * 100 + numPigs * 15 + numChickens * 0.3) * 365;
+  const totalCropArea = Object.values(cropAreas).reduce((s, v) => s + (v || 0), 0);
+  const cropWater = totalCropArea * 5000000 * (9 / 12);
+  return Math.round(livestockWater + cropWater);
 }
 
+/* ─────────────────────────────────────────────────────────
+   IRRIGATION ENERGY
+   Energy required to pump irrigation water to crops.
+───────────────────────────────────────────────────────── */
+
 /**
- * Calculate carbon sequestration from biochar (accounting for seasonal rotation)
- * @param {object} cropAreas - Object with crop names as keys and hectares as values
- * @returns {number} Total CO2 sequestered in tons per year
+ * Electricity consumed for irrigation based on crop type and area.
+ * @param {object} cropAreas - { cropName: hectares }
+ * @returns {number} Irrigation energy in kWh/year
  */
-export function getCarbonImpact(cropAreas = {}) {
-  const { crops, seasons } = farmData;
-
-  let totalBiochar = 0;
-
-  // Calculate biochar from each crop, accounting for seasonal rotation
-  Object.entries(cropAreas).forEach(([cropName, hectares]) => {
-    if (crops[cropName] && hectares > 0) {
-      const cropData = crops[cropName];
-      const cropBiochar = hectares * cropData.residue_yield_tons_per_ha * cropData.biochar_conversion_rate;
-
-      // Account for seasonal rotation: crops are only active during their season
-      // 3 seasons per year, each crop grows in 1 season (4 months), with 1 month fallow
-      // So each crop is active for 3 months per season = 9 months total per year
-      const activeMonths = 9; // 3 seasons × 3 active months
-      const adjustedBiochar = cropBiochar * (activeMonths / 12);
-
-      totalBiochar += adjustedBiochar;
-    }
+export function getIrrigationEnergy(cropAreas = {}) {
+  const irrigationKwhPerHa = {
+    wheat: 300,
+    barley: 250,
+    corn: 500,
+    sunflower: 180,
+    olives: 200,
+    rapeseed: 250,
+    potatoes: 420,
+    rice: 800,
+    other: 350,
+  };
+  let total = 0;
+  Object.entries(cropAreas).forEach(([crop, ha]) => {
+    total += (ha || 0) * (irrigationKwhPerHa[crop] || irrigationKwhPerHa.other);
   });
-
-  // Calculate CO2 sequestered (using first crop's coefficient as all are the same)
-  const co2Sequestered = totalBiochar * crops.wheat.co2_sequestered_per_ton_biochar;
-
-  return Math.round(co2Sequestered * 100) / 100;
+  return Math.round(total);
 }
 
+/* ─────────────────────────────────────────────────────────
+   CARBON IMPACT
+   Bio-char sequestration removed per system spec.
+   Only grid CO₂ avoidance is credited.
+───────────────────────────────────────────────────────── */
+
 /**
- * Calculate CO2 emissions avoided from energy generation
- * @param {number} energyKwh - Energy generated in kWh
- * @returns {number} CO2 avoided in tons
+ * Bio-char sequestration removed from calculations per system spec.
+ * Returns 0. Function retained for interface compatibility.
  */
+export function getCarbonImpact(_cropAreas = {}) {
+  return 0;
+}
+
 export function getCO2Avoided(energyKwh = 0) {
   const { energy } = farmData;
-  // Convert kg to tons
-  const co2AvoidedKg = energyKwh * energy.grid_co2_intensity_kg_per_kwh;
-  const co2AvoidedTons = co2AvoidedKg / 1000;
-  return Math.round(co2AvoidedTons * 100) / 100;
+  return Math.round((energyKwh * energy.grid_co2_intensity_kg_per_kwh / 1000) * 100) / 100;
 }
 
-/**
- * Calculate total carbon impact (sequestration + avoided emissions)
- * @param {object} cropAreas - Object with crop names as keys and hectares as values
- * @param {number} energyKwh - Energy generated in kWh
- * @returns {number} Net CO2 impact in tons (negative = carbon negative)
- */
-export function getTotalCarbonImpact(cropAreas = {}, energyKwh = 0) {
-  const sequestered = getCarbonImpact(cropAreas);
-  const avoided = getCO2Avoided(energyKwh);
-  const total = sequestered + avoided;
-  return Math.round(total * 100) / 100;
+export function getTotalCarbonImpact(_cropAreas = {}, energyKwh = 0) {
+  return getCO2Avoided(energyKwh);
 }
 
-/**
- * Calculate financial savings (operational savings only, excludes infrastructure costs)
- * @param {number} energyKwh - Energy generated in kWh
- * @param {number} waterLiters - Water harvested in liters
- * @returns {number} Total operational savings in USD per year
- */
+/* ─────────────────────────────────────────────────────────
+   ENERGY REQUIREMENT (includes irrigation)
+───────────────────────────────────────────────────────── */
+
+export function getEnergyRequirement(numCows = 0, numPigs = 0, numChickens = 0, cropAreas = {}) {
+  const livestockEnergy = numCows * 500 + numPigs * 50 + numChickens * 2;
+  const totalCropArea = Object.values(cropAreas).reduce((s, v) => s + (v || 0), 0);
+  const cropProcessingEnergy = totalCropArea * 600 * (9 / 12);
+  const irrigationEnergy = getIrrigationEnergy(cropAreas);
+  const baseInfrastructure = 2000;
+  return Math.round(livestockEnergy + cropProcessingEnergy + irrigationEnergy + baseInfrastructure);
+}
+
+/* ─────────────────────────────────────────────────────────
+   FINANCIAL SAVINGS
+───────────────────────────────────────────────────────── */
+
 export function getFinancials(energyKwh = 0, waterLiters = 0) {
   const { energy, water } = farmData;
-
-  // Operational savings only (energy and water costs avoided)
   const energySavings = energyKwh * energy.electricity_cost_usd_per_kwh;
   const waterSavings = waterLiters * water.water_pumping_cost_usd_per_liter;
-
-  const totalSavings = energySavings + waterSavings;
-  return Math.round(totalSavings * 100) / 100;
+  return Math.round((energySavings + waterSavings) * 100) / 100;
 }
 
-/**
- * Calculate infrastructure costs (one-time CAPEX)
- * @param {number} solarArea - Solar panel area in m²
- * @param {number} numCows - Number of dairy cows (for biogas plant sizing)
- * @returns {object} Infrastructure costs breakdown
- */
-export function getInfrastructureCosts(solarArea = 0, numCows = 0) {
-  const { energy } = farmData;
+/* ─────────────────────────────────────────────────────────
+   INFRASTRUCTURE CAPEX
+   Reference: 120 m³ tubular digester + 15 kW Micro-CHP = $40,000
+   Solar: $800/kWp installed
+   BESS: $350/kWh installed
+───────────────────────────────────────────────────────── */
 
-  const solarCost = solarArea * energy.solar_pv_cost_per_m2_usd;
-  const biogasCost = numCows * energy.biogas_plant_cost_per_cow_usd;
+export function getInfrastructureCosts(solarArea = 0, numCows = 0, numPigs = 0, numChickens = 0) {
+  const digesterVolume = getDigesterVolume(numCows, numPigs, numChickens);
+  const digesterCost = Math.round((digesterVolume / 120) * 40000);
+
+  const solarKwp = solarArea * 0.20;
+  const solarCost = Math.round(solarKwp * 800);
+
+  const bessKwh = getBESSCapacity(solarArea);
+  const bessCost = Math.round(bessKwh * 350);
 
   return {
-    solar: Math.round(solarCost),
-    biogas: Math.round(biogasCost),
-    total: Math.round(solarCost + biogasCost)
+    digester: digesterCost,
+    solar: solarCost,
+    bess: bessCost,
+    total: digesterCost + solarCost + bessCost,
   };
 }
 
-/**
- * Calculate energy independence percentage
- * @param {number} generatedEnergy - Energy generated in kWh
- * @param {number} totalEnergyNeeded - Total energy needed in kWh
- * @returns {number} Energy independence percentage
- */
+/* ─────────────────────────────────────────────────────────
+   ENERGY INDEPENDENCE
+───────────────────────────────────────────────────────── */
+
 export function getEnergyIndependence(generatedEnergy = 0, totalEnergyNeeded = 10000) {
   if (totalEnergyNeeded === 0) return 0;
-  const percentage = (generatedEnergy / totalEnergyNeeded) * 100;
-  return Math.min(Math.round(percentage * 100) / 100, 100);
-}
-
-/**
- * Calculate total energy requirement for the farm
- * Based on livestock, crops, and infrastructure
- * @param {number} numCows - Number of dairy cows
- * @param {number} numPigs - Number of pigs
- * @param {number} numChickens - Number of chickens
- * @param {object} cropAreas - Object with crop names as keys and hectares as values
- * @returns {number} Total energy requirement in kWh per year
- */
-export function getEnergyRequirement(numCows = 0, numPigs = 0, numChickens = 0, cropAreas = {}) {
-  // Base energy consumption per animal per year (kWh)
-  const cowEnergyPerYear = 500; // kWh per cow per year (milking, cooling, etc.)
-  const pigEnergyPerYear = 50; // kWh per pig per year
-  const chickenEnergyPerYear = 2; // kWh per chicken per year
-
-  // Energy for crop processing per hectare per year (kWh)
-  // Accounting for seasonal rotation: 9 months active per year
-  const cropEnergyPerHa = 600; // kWh per hectare per year (average)
-  const totalCropArea = Object.values(cropAreas).reduce((sum, area) => sum + (area || 0), 0);
-  const activeCropMonths = 9; // 3 seasons × 3 active months
-  const cropEnergy = totalCropArea * cropEnergyPerHa * (activeCropMonths / 12);
-
-  // Base farm infrastructure energy (lighting, equipment, etc.)
-  const baseInfrastructureEnergy = 2000; // kWh per year
-
-  // Calculate total requirement
-  const livestockEnergy = (numCows * cowEnergyPerYear) + (numPigs * pigEnergyPerYear) + (numChickens * chickenEnergyPerYear);
-
-  const totalEnergyRequired = livestockEnergy + cropEnergy + baseInfrastructureEnergy;
-  return Math.round(totalEnergyRequired);
+  return Math.min(Math.round((generatedEnergy / totalEnergyNeeded) * 10000) / 100, 100);
 }
