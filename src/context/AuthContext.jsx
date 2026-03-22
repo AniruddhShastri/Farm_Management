@@ -1,75 +1,141 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, db, googleProvider, signInWithPopup, doc, setDoc, isFirebaseConfigured } from '../lib/firebase';
+import {
+  auth, db, googleProvider,
+  signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  signOut, onAuthStateChanged, updateProfile,
+  doc, setDoc, getDoc,
+  isFirebaseConfigured,
+} from '../lib/firebase';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(() => {
-    try {
-      const stored = localStorage.getItem('voneng_user');
-      return stored ? JSON.parse(stored) : null;
-    } catch {
-      return null;
-    }
-  });
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  const [pendingOTP, setPendingOTP] = useState(null);
-
-  // Persist user to localStorage independently for fast boot
   useEffect(() => {
-    if (user) {
-      localStorage.setItem('voneng_user', JSON.stringify(user));
+    if (isFirebaseConfigured) {
+      // Firebase handles session persistence automatically across page refreshes
+      const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+        if (fbUser) {
+          try {
+            const userDoc = await getDoc(doc(db, 'users', fbUser.uid));
+            const data = userDoc.exists() ? userDoc.data() : {};
+            setUser({
+              id: fbUser.uid,
+              name: fbUser.displayName || data.name || 'User',
+              email: fbUser.email,
+              role: data.role || 'farmer',
+              provider: fbUser.providerData[0]?.providerId === 'google.com' ? 'google' : 'email',
+              verified: fbUser.emailVerified,
+            });
+          } catch {
+            setUser({
+              id: fbUser.uid,
+              name: fbUser.displayName || 'User',
+              email: fbUser.email,
+              role: 'farmer',
+              verified: true,
+            });
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      });
+      return unsubscribe;
     } else {
-      localStorage.removeItem('voneng_user');
+      // No Firebase config — load mock user from localStorage
+      try {
+        const stored = localStorage.getItem('voneng_user');
+        if (stored) setUser(JSON.parse(stored));
+      } catch {}
+      setLoading(false);
+    }
+  }, []);
+
+  // Persist mock user to localStorage (only when Firebase is not configured)
+  useEffect(() => {
+    if (!isFirebaseConfigured) {
+      if (user) localStorage.setItem('voneng_user', JSON.stringify(user));
+      else localStorage.removeItem('voneng_user');
     }
   }, [user]);
 
-  // Simulate sending OTP — in production this calls AbstractAPI + Twilio
-  function sendOTP(email) {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    console.log(`[VONeng DEV] OTP for ${email}: ${otp}`); // only visible in dev console
-    setPendingOTP({ email, otp, expires: Date.now() + 10 * 60 * 1000 }); // 10 min expiry
-    return otp; // returned so UI can show it in dev mode
-  }
-
-  function verifyOTP(email, enteredOTP) {
-    if (!pendingOTP) return { success: false, error: 'No OTP was sent' };
-    if (Date.now() > pendingOTP.expires) return { success: false, error: 'OTP expired. Please request a new one.' };
-    if (pendingOTP.email !== email) return { success: false, error: 'Email mismatch' };
-    if (pendingOTP.otp !== enteredOTP.trim()) return { success: false, error: 'Incorrect OTP. Please try again.' };
-    setPendingOTP(null);
-    return { success: true };
-  }
-
-  // --- STANDARD EMAIL APP FALLBACK ---
-  function signup({ name, email, password, role }) {
-    const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
-    if (users.find(u => u.email === email)) {
-      return { success: false, error: 'An account with this email already exists.' };
+  async function signup({ name, email, password, role }) {
+    if (isFirebaseConfigured) {
+      try {
+        const result = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(result.user, { displayName: name });
+        const userData = {
+          id: result.user.uid,
+          name,
+          email,
+          role: role || 'farmer',
+          provider: 'email',
+          createdAt: new Date().toISOString(),
+          verified: true,
+        };
+        await setDoc(doc(db, 'users', result.user.uid), userData);
+        // onAuthStateChanged will automatically set user state
+        return { success: true, role: userData.role };
+      } catch (error) {
+        if (error.code === 'auth/email-already-in-use') {
+          return { success: false, error: 'An account with this email already exists.' };
+        }
+        if (error.code === 'auth/weak-password') {
+          return { success: false, error: 'Password must be at least 6 characters.' };
+        }
+        return { success: false, error: error.message };
+      }
+    } else {
+      // Mock fallback when Firebase is not configured
+      const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
+      if (users.find(u => u.email === email)) {
+        return { success: false, error: 'An account with this email already exists.' };
+      }
+      const newUser = {
+        id: Date.now().toString(),
+        name,
+        email,
+        password, // plaintext only in mock/dev mode
+        role: role || 'farmer',
+        createdAt: new Date().toISOString(),
+        verified: true,
+      };
+      users.push(newUser);
+      localStorage.setItem('voneng_users', JSON.stringify(users));
+      const { password: _, ...safeUser } = newUser;
+      setUser(safeUser);
+      return { success: true, role: safeUser.role };
     }
-    const newUser = {
-      id: Date.now().toString(),
-      name,
-      email,
-      password, // NOTE: in production, use bcrypt hashing server-side
-      role: role || 'farmer',
-      createdAt: new Date().toISOString(),
-      verified: true
-    };
-    users.push(newUser);
-    localStorage.setItem('voneng_users', JSON.stringify(users));
-    const { password: _, ...safeUser } = newUser;
-    setUser(safeUser);
-    return { success: true };
   }
 
-  function login(email, password) {
-    const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
-    const found = users.find(u => u.email === email && u.password === password);
-    if (!found) return { success: false, error: 'Invalid email or password.' };
-    const { password: _, ...safeUser } = found;
-    setUser(safeUser);
-    return { success: true };
+  async function login(email, password) {
+    if (isFirebaseConfigured) {
+      try {
+        const result = await signInWithEmailAndPassword(auth, email, password);
+        // Fetch role from Firestore to know where to redirect
+        const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+        const role = userDoc.exists() ? userDoc.data().role : 'farmer';
+        // onAuthStateChanged will set the full user state
+        return { success: true, role };
+      } catch (error) {
+        const invalidCodes = ['auth/user-not-found', 'auth/wrong-password', 'auth/invalid-credential', 'auth/invalid-email'];
+        if (invalidCodes.includes(error.code)) {
+          return { success: false, error: 'Invalid email or password.' };
+        }
+        return { success: false, error: error.message };
+      }
+    } else {
+      // Mock fallback
+      const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
+      const found = users.find(u => u.email === email && u.password === password);
+      if (!found) return { success: false, error: 'Invalid email or password.' };
+      const { password: _, ...safeUser } = found;
+      setUser(safeUser);
+      return { success: true, role: safeUser.role };
+    }
   }
 
   async function loginWithGoogle(role = 'farmer') {
@@ -77,54 +143,63 @@ export function AuthProvider({ children }) {
       try {
         const result = await signInWithPopup(auth, googleProvider);
         const fbUser = result.user;
-        const normalizedUser = {
-          id: fbUser.uid,
-          name: fbUser.displayName || 'VONeng User',
-          email: fbUser.email,
-          role: role,
-          provider: 'google',
-          createdAt: new Date().toISOString(),
-          verified: true
-        };
-
-        // Write safely to company database (Firestore)
-        await setDoc(doc(db, 'users', fbUser.uid), normalizedUser, { merge: true });
-
-        setUser(normalizedUser);
-        return { success: true };
+        const userDocRef = doc(db, 'users', fbUser.uid);
+        const existing = await getDoc(userDocRef);
+        let finalRole = role;
+        if (!existing.exists()) {
+          // New Google user — save with selected role
+          await setDoc(userDocRef, {
+            id: fbUser.uid,
+            name: fbUser.displayName || 'User',
+            email: fbUser.email,
+            role,
+            provider: 'google',
+            createdAt: new Date().toISOString(),
+            verified: true,
+          });
+        } else {
+          // Returning Google user — use their stored role
+          finalRole = existing.data().role || role;
+        }
+        // onAuthStateChanged will set user state
+        return { success: true, role: finalRole };
       } catch (error) {
-        console.error("Google Sign-in Error:", error);
+        if (error.code === 'auth/popup-closed-by-user') {
+          return { success: false, error: 'Sign-in cancelled.' };
+        }
         return { success: false, error: error.message };
       }
     } else {
-      // Mock Google Flow if Developer hasn't added .env file
-      console.warn("Firebase not configured. Using Mock Google Account.");
+      // Mock fallback
+      console.warn("Firebase not configured. Using mock Google account.");
       const mockGoogleUser = {
-        id: 'g-mock-' + Date.now().toString().slice(-4),
+        id: 'g-mock-' + Date.now(),
         name: 'Demo Google User',
         email: 'mock-google@gmail.com',
-        role: role,
+        role,
         provider: 'google',
         createdAt: new Date().toISOString(),
-        verified: true
+        verified: true,
       };
-      // Save it to pseudo-DB
       const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
       if (!users.find(u => u.email === mockGoogleUser.email)) {
         users.push(mockGoogleUser);
         localStorage.setItem('voneng_users', JSON.stringify(users));
       }
       setUser(mockGoogleUser);
-      return { success: true, mock: true };
+      return { success: true, role, mock: true };
     }
   }
 
-  function logout() {
+  async function logout() {
+    if (isFirebaseConfigured) {
+      await signOut(auth);
+    }
     setUser(null);
   }
 
   return (
-    <AuthContext.Provider value={{ user, sendOTP, verifyOTP, signup, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

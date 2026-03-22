@@ -1,6 +1,15 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+  createUserWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged,
+  updateProfile,
+} from 'firebase/auth';
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
@@ -11,7 +20,6 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
 };
 
-// Check if Firebase config is actually provided
 const isFirebaseConfigured = !!firebaseConfig.apiKey;
 
 let app = null;
@@ -29,4 +37,10 @@ if (isFirebaseConfigured) {
   }
 }
 
-export { auth, db, googleProvider, signInWithPopup, doc, setDoc, isFirebaseConfigured };
+export {
+  auth, db, googleProvider,
+  signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword,
+  signOut, onAuthStateChanged, updateProfile,
+  doc, setDoc, getDoc,
+  isFirebaseConfigured,
+};

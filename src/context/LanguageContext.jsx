@@ -10,19 +10,12 @@ const LanguageContext = createContext({
 });
 
 export function LanguageProvider({ children }) {
-  const [lang, setLangState] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && translations[saved]) return saved;
-    // Auto-detect browser language
-    const browser = navigator.language?.split('-')[0];
-    if (browser && translations[browser]) return browser;
-    return 'en';
-  });
+  // Always initialize to English on every fresh visit
+  // User can manually switch languages; selection persists during the session only
+  const [lang, setLangState] = useState('en');
 
   function setLang(code) {
     setLangState(code);
-    localStorage.setItem(STORAGE_KEY, code);
-    // Switch font for Hindi
     document.documentElement.setAttribute('data-lang', code);
   }
 

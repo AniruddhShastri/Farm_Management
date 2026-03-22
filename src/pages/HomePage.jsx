@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 /* ─── Animated counter hook ─── */
 function useCounter(target, duration = 2000, start = false) {
@@ -41,7 +42,11 @@ const stats = [
 
 export default function HomePage() {
   const { t } = useLanguage();
+  const { user, loading } = useAuth();
   const [statsRef, statsInView] = useInView();
+
+  // Hide "Create Expert Account" if the authenticated user is already an expert
+  const isExpert = !loading && user?.role === 'expert';
 
   /* ─── All translated content arrays (inside component so t() is available) ─── */
   const problems = [
@@ -439,7 +444,9 @@ export default function HomePage() {
           <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">{t('footer_cta_body')}</p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/advisor" className="btn-primary text-base px-10 py-4">{t('footer_cta_button')}</Link>
-            <Link to="/signup" className="btn-secondary text-base px-10 py-4">{t('footer_create_account')}</Link>
+            {!isExpert && (
+              <Link to="/signup" className="btn-secondary text-base px-10 py-4">{t('footer_create_account')}</Link>
+            )}
           </div>
         </div>
       </section>
