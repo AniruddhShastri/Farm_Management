@@ -238,13 +238,17 @@ function ExpertDashboard() {
 
         <div className="flex-1 overflow-y-auto relative min-w-0">
           {/* Mobile toolbar */}
-          <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-6 py-4 bg-[#030a06]/80 backdrop-blur-md border-b border-white/10">
-            <img src={logo} alt="Logo" className="h-9 w-auto object-contain" />
-            <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-green-400/10 text-green-400 rounded-xl">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
-              </svg>
-            </button>
+          <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[#030a06]/90 backdrop-blur-md border-b border-white/10">
+            <img src={logo} alt="Logo" className="h-7 w-auto object-contain" />
+            <div className="flex items-center gap-2">
+              <Link to="/advisor" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Advisor</Link>
+              <Link to="/" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Home</Link>
+              <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-green-400/10 text-green-400 rounded-xl ml-1">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-green-400/10 to-transparent -z-10 blur-3xl pointer-events-none" />

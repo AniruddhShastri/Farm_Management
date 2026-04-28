@@ -77,7 +77,17 @@ export function AuthProvider({ children }) {
           verified: true,
         };
         await setDoc(doc(db, 'users', result.user.uid), userData);
-        // onAuthStateChanged will automatically set user state
+        // Explicitly set user state with the correct role.
+        // onAuthStateChanged fires before setDoc completes (race condition),
+        // so it defaults to 'farmer'. We override it here after the write.
+        setUser({
+          id: result.user.uid,
+          name,
+          email,
+          role: userData.role,
+          provider: 'email',
+          verified: true,
+        });
         return { success: true, role: userData.role };
       } catch (error) {
         if (error.code === 'auth/email-already-in-use') {
