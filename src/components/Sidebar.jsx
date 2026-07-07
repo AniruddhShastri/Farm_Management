@@ -79,7 +79,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
         <div className="mb-14 px-2">
           <div className="flex flex-col gap-1">
             <img src={logo} alt="Logo" className="h-10 w-auto object-contain self-start" />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-1">MODULAR SYSTEMS</p>
+            <p className="text-[10px] font-black text-mist uppercase tracking-[0.2em] mt-1">MODULAR SYSTEMS</p>
           </div>
         </div>
 
@@ -206,7 +206,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
 
           {/* Section: Circularity */}
           <div className="animate-fade-in pt-12 border-t border-[#edf2ee]" style={{ animationDelay: '0.4s' }}>
-            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400 mb-8 text-whiteenter">Circularity Strategy</h4>
+            <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-mist mb-8 text-whiteenter">Circularity Strategy</h4>
 
             <div className="mb-10 px-1 group">
               <label className={labelClasses}>Manure Cycle</label>
@@ -228,7 +228,7 @@ function Sidebar({ inputs, onInputChange, locationOptions, calculatedRainfall, i
             </div>
 
             <div className="space-y-6 px-1">
-              <h5 className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Output Recipe (%)</h5>
+              <h5 className="text-[9px] font-black text-mist uppercase tracking-[0.2em] mb-4">Output Recipe (%)</h5>
               {biomassBucketKeys.map((key) => {
                 const val = inputs[`feedstock_${key}`] ?? (key === 'manure' ? 50 : 0);
                 return (

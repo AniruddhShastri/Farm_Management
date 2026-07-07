@@ -3,29 +3,29 @@ import { formatCurrency, formatCarbon, formatNumber } from '../utils/unitConvert
 
 function KPICard({ title, value, unit, subtitle, icon, colorClass, gradientFrom }) {
   return (
-    <div className="glass-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:-translate-y-1 border-white/10/10">
+    <div className="surface-card rounded-2xl p-6 relative overflow-hidden group transition-all duration-500 hover:shadow-xl hover:-translate-y-1">
       <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${gradientFrom} to-transparent opacity-10 rounded-full -mr-12 -mt-12 transition-transform duration-700 group-hover:scale-150`} />
 
       <div className="relative z-10">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{title}</h3>
+          <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-mist">{title}</h3>
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-lg ${colorClass} text-white transform transition-transform group-hover:rotate-12`}>
             {icon}
           </div>
         </div>
 
         <div className="flex items-baseline gap-1.5 mb-1">
-          <span className="text-3xl font-black tracking-tight text-white leading-none">
+          <span className="stat-number text-3xl font-black tracking-tight text-white leading-none">
             {value}
           </span>
           {unit && (
-            <span className="text-sm font-bold text-slate-400 uppercase tracking-wider">
+            <span className="text-sm font-bold text-mist uppercase tracking-wider">
               {unit}
             </span>
           )}
         </div>
 
-        <p className="text-[10px] font-bold text-slate-400 tracking-wide uppercase">{subtitle}</p>
+        <p className="text-[10px] font-bold text-mist tracking-wide uppercase">{subtitle}</p>
       </div>
     </div>
   );

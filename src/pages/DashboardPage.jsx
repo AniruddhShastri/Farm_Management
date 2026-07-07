@@ -15,7 +15,7 @@ export default function DashboardPage() {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
           </svg>
-          <p className="text-slate-500 text-sm">Verifying access...</p>
+          <p className="text-mist text-sm">Verifying access...</p>
         </div>
       </div>
     );
@@ -30,10 +30,10 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--voneng-bg)' }}>
         <div className="glass-card p-10 max-w-md text-center">
           <div className="text-5xl mb-6">🔒</div>
-          <h2 className="text-white font-bold text-2xl mb-4" style={{ fontFamily: 'Syne, sans-serif' }}>
+          <h2 className="text-white font-bold text-2xl mb-4" style={{ fontFamily: 'var(--font-display)' }}>
             Expert Access Required
           </h2>
-          <p className="text-slate-400 mb-6">
+          <p className="text-mist mb-6">
             The detailed technical dashboard is available to engineers and investors only.
             Your current account is registered as a Farmer.
           </p>

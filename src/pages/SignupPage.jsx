@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { fadeUp, scaleIn, staggerContainer } from '../components/motion';
 
 export default function SignupPage() {
   const { signup, loginWithGoogle } = useAuth();
@@ -55,18 +57,28 @@ export default function SignupPage() {
         className="fixed inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse 60% 50% at 50% 20%, rgba(22,163,74,0.08) 0%, transparent 70%)' }}
       />
+      <div
+        aria-hidden
+        className="fixed pointer-events-none rounded-full"
+        style={{ width: 320, height: 320, bottom: '-8%', right: '-6%', background: 'rgba(217,164,65,0.07)', filter: 'blur(110px)' }}
+      />
 
-      <div className="w-full max-w-md relative z-10">
-        <div className="text-center mb-8">
-          <Link to="/" className="text-green-400 font-bold text-2xl" style={{ fontFamily: 'Syne, sans-serif' }}>
+      <motion.div
+        className="w-full max-w-md relative z-10"
+        variants={staggerContainer(0.1)}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.div variants={fadeUp} className="text-center mb-8">
+          <Link to="/" className="text-green-400 font-bold text-2xl" style={{ fontFamily: 'var(--font-display)' }}>
             VONeng
           </Link>
-          <p className="text-slate-500 text-sm mt-2">{t('signup_create_account')}</p>
-        </div>
+          <p className="text-mist text-sm mt-2">{t('signup_create_account')}</p>
+        </motion.div>
 
-        <div className="glass-card p-8">
+        <motion.div variants={scaleIn} className="glass-card p-8">
           <form onSubmit={handleSubmit}>
-            <h2 className="text-white font-bold text-2xl mb-6" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h2 className="text-white font-bold text-2xl mb-6" style={{ fontFamily: 'var(--font-display)' }}>
               {t('signup_create_account')}
             </h2>
 
@@ -143,13 +155,22 @@ export default function SignupPage() {
               </div>
             </div>
 
-            {error && (
-              <p className="text-red-400 text-sm mt-4 p-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)' }}>
-                {error}
-              </p>
-            )}
+            <AnimatePresence>
+              {error && (
+                <motion.p
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0, x: [0, -6, 6, -3, 0] }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.35 }}
+                  className="text-red-400 text-sm mt-4 p-3 rounded-lg"
+                  style={{ background: 'rgba(239,68,68,0.1)' }}
+                >
+                  {error}
+                </motion.p>
+              )}
+            </AnimatePresence>
 
-            <button type="submit" disabled={loading} className="btn-primary w-full mt-6 flex items-center justify-center gap-2">
+            <motion.button whileTap={{ scale: 0.98 }} type="submit" disabled={loading} className="btn-primary w-full mt-6 flex items-center justify-center gap-2">
               {loading ? (
                 <>
                   <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
@@ -159,17 +180,17 @@ export default function SignupPage() {
                   Creating account...
                 </>
               ) : t('signup_continue')}
-            </button>
+            </motion.button>
           </form>
-        </div>
+        </motion.div>
 
-        <p className="text-center text-slate-500 text-sm mt-6">
+        <motion.p variants={fadeUp} className="text-center text-mist text-sm mt-6">
           {t('signup_already_account')}{' '}
           <Link to="/login" className="text-green-400 hover:text-green-300 font-medium transition-colors">
             {t('signup_sign_in')}
           </Link>
-        </p>
-      </div>
+        </motion.p>
+      </motion.div>
     </div>
   );
 }

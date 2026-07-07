@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
+import { staggerContainer, fadeUp } from './motion';
 import logo from '../assets/logo.png';
 
 /* ── Language Switcher Dropdown ── */
@@ -24,7 +26,7 @@ function LanguageSwitcher() {
       <button
         onClick={() => setOpen(p => !p)}
         className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-200 hover:bg-green-900/20"
-        style={{ border: '1px solid rgba(34,197,94,0.2)', color: '#86efac' }}
+        style={{ border: '1px solid var(--voneng-border)', color: '#86efac' }}
       >
         <span className="text-base leading-none">{current.flag}</span>
         <span className="hidden sm:block">{current.nativeName}</span>
@@ -36,46 +38,45 @@ function LanguageSwitcher() {
         </svg>
       </button>
 
-      {open && (
-        <div
-          className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50 min-w-[160px]"
-          style={{
-            background: 'rgba(8,20,12,0.98)',
-            border: '1px solid rgba(34,197,94,0.2)',
-            boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
-            animation: 'dropIn 0.15s ease',
-          }}
-        >
-          <style>{`
-            @keyframes dropIn {
-              from { opacity: 0; transform: translateY(-8px); }
-              to { opacity: 1; transform: translateY(0); }
-            }
-          `}</style>
-          {LANGUAGES.map(l => (
-            <button
-              key={l.code}
-              onClick={() => { setLang(l.code); setOpen(false); }}
-              className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 text-left"
-              style={{
-                background: l.code === lang ? 'rgba(22,163,74,0.15)' : 'transparent',
-                color: l.code === lang ? '#4ade80' : '#94a3b8',
-                fontFamily: l.code === 'hi' ? "'Noto Sans Devanagari', sans-serif" : 'Inter, sans-serif',
-              }}
-              onMouseEnter={e => { if (l.code !== lang) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
-              onMouseLeave={e => { if (l.code !== lang) e.currentTarget.style.background = 'transparent'; }}
-            >
-              <span className="text-lg leading-none">{l.flag}</span>
-              <span>{l.nativeName}</span>
-              {l.code === lang && (
-                <svg className="w-3.5 h-3.5 ml-auto text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-                </svg>
-              )}
-            </button>
-          ))}
-        </div>
-      )}
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -6, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: 'easeOut' }}
+            className="absolute right-0 top-full mt-2 rounded-2xl overflow-hidden z-50 min-w-[160px]"
+            style={{
+              background: 'rgba(8,20,12,0.98)',
+              border: '1px solid var(--voneng-border)',
+              boxShadow: 'var(--shadow-2)',
+            }}
+          >
+            {LANGUAGES.map(l => (
+              <button
+                key={l.code}
+                onClick={() => { setLang(l.code); setOpen(false); }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-sm transition-colors duration-150 text-left"
+                style={{
+                  background: l.code === lang ? 'rgba(22,163,74,0.15)' : 'transparent',
+                  color: l.code === lang ? 'var(--voneng-green-bright)' : 'var(--voneng-muted)',
+                  fontFamily: l.code === 'hi' ? "'Noto Sans Devanagari', sans-serif" : 'Inter, sans-serif',
+                }}
+                onMouseEnter={e => { if (l.code !== lang) e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+                onMouseLeave={e => { if (l.code !== lang) e.currentTarget.style.background = 'transparent'; }}
+              >
+                <span className="text-lg leading-none">{l.flag}</span>
+                <span>{l.nativeName}</span>
+                {l.code === lang && (
+                  <svg className="w-3.5 h-3.5 ml-auto text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -87,6 +88,7 @@ export default function Navbar() {
   const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { scrollYProgress } = useScroll();
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -103,13 +105,18 @@ export default function Navbar() {
     { labelKey: 'nav_advisor', href: '/advisor' },
   ];
 
+  const isLanding = location.pathname === '/';
+
   return (
-    <nav
+    <motion.nav
+      initial={{ y: -24, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
       style={{
-        background: scrolled ? 'rgba(3, 10, 6, 0.92)' : 'transparent',
-        backdropFilter: scrolled ? 'blur(20px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(34,197,94,0.12)' : '1px solid transparent',
+        background: scrolled ? 'rgba(5, 13, 8, 0.85)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(16px)' : 'none',
+        borderBottom: scrolled ? '1px solid var(--voneng-border)' : '1px solid transparent',
       }}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -127,7 +134,7 @@ export default function Navbar() {
             <a
               key={link.labelKey}
               href={link.href}
-              className="text-slate-400 hover:text-green-400 text-sm font-medium transition-colors duration-200"
+              className="nav-link text-mist hover:text-green-400 text-sm font-medium transition-colors duration-200"
             >
               {t(link.labelKey)}
             </a>
@@ -148,7 +155,7 @@ export default function Navbar() {
             </>
           ) : (
             <>
-              <Link to="/login" className="text-sm text-slate-400 hover:text-white font-medium transition-colors">
+              <Link to="/login" className="text-sm text-mist hover:text-white font-medium transition-colors">
                 {t('nav_signin')}
               </Link>
               <Link to="/signup" className="btn-primary text-sm py-2.5 px-6">
@@ -162,7 +169,7 @@ export default function Navbar() {
         <div className="md:hidden flex items-center gap-3">
           <LanguageSwitcher />
           <button
-            className="text-slate-400 hover:text-green-400 transition-colors"
+            className="text-mist hover:text-green-400 transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? (
@@ -179,31 +186,59 @@ export default function Navbar() {
       </div>
 
       {/* Mobile menu */}
-      {mobileOpen && (
-        <div className="md:hidden glass-card mx-4 mb-4 p-6 rounded-2xl">
-          <div className="flex flex-col gap-4">
-            {navLinks.map(link => (
-              <a
-                key={link.labelKey}
-                href={link.href}
-                className="text-slate-300 hover:text-green-400 font-medium transition-colors"
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            className="md:hidden overflow-hidden"
+          >
+            <div className="glass-card mx-4 mb-4 p-6 rounded-2xl">
+              <motion.div
+                className="flex flex-col gap-4"
+                variants={staggerContainer(0.05)}
+                initial="hidden"
+                animate="visible"
               >
-                {t(link.labelKey)}
-              </a>
-            ))}
-            <div className="border-t border-green-900/50 pt-4 flex flex-col gap-3">
-              {user ? (
-                <button onClick={logout} className="btn-primary text-center">Sign Out</button>
-              ) : (
-                <>
-                  <Link to="/login" className="btn-secondary text-center">{t('nav_signin')}</Link>
-                  <Link to="/signup" className="btn-primary text-center">{t('nav_get_started')}</Link>
-                </>
-              )}
+                {navLinks.map(link => (
+                  <motion.a
+                    key={link.labelKey}
+                    variants={fadeUp}
+                    href={link.href}
+                    className="text-slate-300 hover:text-green-400 font-medium transition-colors"
+                  >
+                    {t(link.labelKey)}
+                  </motion.a>
+                ))}
+                <motion.div variants={fadeUp} className="border-t border-green-900/50 pt-4 flex flex-col gap-3">
+                  {user ? (
+                    <button onClick={logout} className="btn-primary text-center">Sign Out</button>
+                  ) : (
+                    <>
+                      <Link to="/login" className="btn-secondary text-center">{t('nav_signin')}</Link>
+                      <Link to="/signup" className="btn-primary text-center">{t('nav_get_started')}</Link>
+                    </>
+                  )}
+                </motion.div>
+              </motion.div>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Scroll progress — landing page only */}
+      {isLanding && (
+        <motion.div
+          aria-hidden
+          className="absolute bottom-0 left-0 right-0 h-[2px] origin-left"
+          style={{
+            scaleX: scrollYProgress,
+            background: 'linear-gradient(90deg, var(--voneng-green-bright), #a3e635, var(--voneng-accent))',
+          }}
+        />
       )}
-    </nav>
+    </motion.nav>
   );
 }

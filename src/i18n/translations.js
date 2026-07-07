@@ -16,10 +16,12 @@ const translations = {
     hero_subtitle: 'VONeng puts a complete solar, biogas, and smart energy system inside a single shipping container. Deployable on any farm in Europe within days.',
     hero_cta_primary: 'Calculate My Farm Savings',
     hero_cta_secondary: 'See How It Works',
-    hero_stat_1_label: 'Average annual savings',
-    hero_stat_2_label: 'Energy independence',
-    hero_stat_3_label: 'Carbon offset per farm',
+    hero_stat_1_label: 'Annual benefit',
+    hero_stat_2_label: 'Electricity independence',
+    hero_stat_3_label: 'CO₂e avoided per year',
     hero_stat_4_label: 'Deployment time',
+    hero_model_badge: 'Modelled on a 100 ha mixed farm — 60 ha crops, 50 cows, 75 pigs, 300 chickens',
+    stats_model_caption: '100-hectare test farm model',
 
     // ── About / Problem / Solution ──
     section_problem: 'The Problem',
@@ -138,10 +140,10 @@ const translations = {
     footer_cta_button: 'Get My Free Analysis',
 
     // ── Homepage – Stats Bar ──
-    stat_co2: 'Carbon offset per farm/year',
-    stat_energy: 'Energy independence',
-    stat_savings: 'Average annual savings',
-    stat_locations: 'Supported locations',
+    stat_co2: 'CO₂e avoided per year',
+    stat_energy: 'Electricity independence',
+    stat_savings: 'Annual benefit',
+    stat_payback: 'Payback period',
 
     // ── Homepage – About / Vision / Mission ──
     mission_badge: 'Our Mission',
@@ -222,10 +224,12 @@ const translations = {
     hero_subtitle: 'VONeng instala un sistema completo de energía solar, biogás e inteligente dentro de un contenedor. Desplegable en cualquier granja de Europa en días.',
     hero_cta_primary: 'Calcular Mis Ahorros',
     hero_cta_secondary: 'Ver Cómo Funciona',
-    hero_stat_1_label: 'Ahorro anual promedio',
-    hero_stat_2_label: 'Independencia energética',
-    hero_stat_3_label: 'Compensación de carbono',
+    hero_stat_1_label: 'Beneficio anual',
+    hero_stat_2_label: 'Independencia eléctrica',
+    hero_stat_3_label: 'CO₂e evitado por año',
     hero_stat_4_label: 'Tiempo de instalación',
+    hero_model_badge: 'Modelado sobre una granja mixta de 100 ha — 60 ha de cultivos, 50 vacas, 75 cerdos, 300 gallinas',
+    stats_model_caption: 'Modelo de granja de prueba de 100 hectáreas',
 
     // ── About / Problem / Solution ──
     section_problem: 'El Problema',
@@ -344,10 +348,10 @@ const translations = {
     footer_cta_button: 'Obtener Mi Análisis Gratuito',
 
     // ── Homepage – Stats Bar ──
-    stat_co2: 'Compensación de carbono por granja/año',
-    stat_energy: 'Independencia energética',
-    stat_savings: 'Ahorro anual medio',
-    stat_locations: 'Ubicaciones compatibles',
+    stat_co2: 'CO₂e evitado por año',
+    stat_energy: 'Independencia eléctrica',
+    stat_savings: 'Beneficio anual',
+    stat_payback: 'Período de retorno',
 
     // ── Homepage – About / Vision / Mission ──
     mission_badge: 'Nuestra Misión',
@@ -428,10 +432,12 @@ const translations = {
     hero_subtitle: 'VONeng सौर, बायोगैस और स्मार्ट ऊर्जा प्रणाली को एक शिपिंग कंटेनर में रखता है. यूरोप के किसी भी खेत पर कुछ ही दिनों में स्थापित किया जा सकता है।',
     hero_cta_primary: 'मेरी बचत गणना करें',
     hero_cta_secondary: 'यह कैसे काम करता है देखें',
-    hero_stat_1_label: 'औसत वार्षिक बचत',
-    hero_stat_2_label: 'ऊर्जा स्वतंत्रता',
-    hero_stat_3_label: 'प्रति खेत कार्बन ऑफसेट',
+    hero_stat_1_label: 'वार्षिक लाभ',
+    hero_stat_2_label: 'बिजली स्वतंत्रता',
+    hero_stat_3_label: 'प्रति वर्ष CO₂e से बचाव',
     hero_stat_4_label: 'स्थापना का समय',
+    hero_model_badge: '100 हेक्टेयर मिश्रित खेत पर आधारित मॉडल — 60 हेक्टेयर फसलें, 50 गायें, 75 सूअर, 300 मुर्गियां',
+    stats_model_caption: '100 हेक्टेयर परीक्षण फार्म मॉडल',
 
     // ── About / Problem / Solution ──
     section_problem: 'समस्या',
@@ -550,10 +556,10 @@ const translations = {
     footer_cta_button: 'मेरा मुफ़्त विश्लेषण प्राप्त करें',
 
     // ── Homepage – Stats Bar ──
-    stat_co2: 'प्रति खेत/वर्ष कार्बन ऑफसेट',
-    stat_energy: 'ऊर्जा स्वतंत्रता',
-    stat_savings: 'औसत वार्षिक बचत',
-    stat_locations: 'समर्थित स्थान',
+    stat_co2: 'प्रति वर्ष CO₂e से बचाव',
+    stat_energy: 'बिजली स्वतंत्रता',
+    stat_savings: 'वार्षिक लाभ',
+    stat_payback: 'निवेश वापसी अवधि',
 
     // ── Homepage – About / Vision / Mission ──
     mission_badge: 'हमारा मिशन',
@@ -634,10 +640,12 @@ const translations = {
     hero_subtitle: 'VONeng installe un système complet d\'énergie solaire, biogaz et intelligent dans un conteneur. Déployable dans n\'importe quelle ferme européenne en quelques jours.',
     hero_cta_primary: 'Calculer Mes Économies',
     hero_cta_secondary: 'Voir Comment Ça Marche',
-    hero_stat_1_label: 'Économies annuelles moyennes',
-    hero_stat_2_label: 'Indépendance énergétique',
-    hero_stat_3_label: 'Compensation carbone par ferme',
+    hero_stat_1_label: 'Bénéfice annuel',
+    hero_stat_2_label: 'Indépendance électrique',
+    hero_stat_3_label: 'CO₂e évité par an',
     hero_stat_4_label: 'Délai de déploiement',
+    hero_model_badge: 'Modélisé sur une ferme mixte de 100 ha — 60 ha de cultures, 50 vaches, 75 porcs, 300 poules',
+    stats_model_caption: 'Modèle de ferme test de 100 hectares',
 
     // ── About / Problem / Solution ──
     section_problem: 'Le Problème',
@@ -756,10 +764,10 @@ const translations = {
     footer_cta_button: 'Obtenir Mon Analyse Gratuite',
 
     // ── Homepage – Stats Bar ──
-    stat_co2: 'Compensation carbone par ferme/an',
-    stat_energy: 'Indépendance énergétique',
-    stat_savings: 'Économies annuelles moyennes',
-    stat_locations: 'Emplacements supportés',
+    stat_co2: 'CO₂e évité par an',
+    stat_energy: 'Indépendance électrique',
+    stat_savings: 'Bénéfice annuel',
+    stat_payback: 'Période de retour',
 
     // ── Homepage – About / Vision / Mission ──
     mission_badge: 'Notre Mission',

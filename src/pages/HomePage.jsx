@@ -1,49 +1,50 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useLanguage } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import {
+  Counter,
+  Reveal,
+  StaggerGroup,
+  StaggerItem,
+  fadeUp,
+  scaleIn,
+  slideInLeft,
+  slideInRight,
+  staggerContainer,
+} from '../components/motion';
 
-/* ─── Animated counter hook ─── */
-function useCounter(target, duration = 2000, start = false) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!start) return;
-    let startTime = null;
-    const step = (timestamp) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-      setCount(Math.floor(progress * target));
-      if (progress < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [target, duration, start]);
-  return count;
-}
-
-/* ─── Intersection observer hook ─── */
-function useInView(threshold = 0.2) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [threshold]);
-  return [ref, inView];
-}
-
-/* ─── Stats (numbers only — labels are translated inline) ─── */
+/* ─── Stats — 100 ha test-farm model (labels are translated inline) ─── */
 const stats = [
-  { value: 237, suffix: ' t', prefix: '', labelKey: 'stat_co2' },
-  { value: 100, suffix: '%', prefix: '', labelKey: 'stat_energy' },
-  { value: 16700, suffix: '', prefix: '€', labelKey: 'stat_savings' },
-  { value: 20, suffix: '+', prefix: '', labelKey: 'stat_locations' },
+  { value: 57796, suffix: '', prefix: '€', labelKey: 'stat_savings' },
+  { value: 100, suffix: '%', prefix: '~', labelKey: 'stat_energy' },
+  { value: 156, suffix: ' t', prefix: '', labelKey: 'stat_co2' },
+  { value: 7, suffix: ' yr', prefix: '~', labelKey: 'stat_payback' },
 ];
+
+/* ─── System spec highlights (100 ha model) ─── */
+const systemSpecs = ['50 kWp Solar', '120 m³ Digester', '150 kWh BESS', '~95,400 kWh/yr'];
+const financials = ['CAPEX €265,000', 'NPV €276k @ 6%', 'IRR 17%', '~7-yr payback'];
+
+/* ─── One animated stat (own component: hooks can't live in .map) ─── */
+function StatItem({ value, prefix, suffix, label }) {
+  return (
+    <StaggerItem className="text-center">
+      <div className="gradient-text font-bold mb-2" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)' }}>
+        <Counter value={value} prefix={prefix} suffix={suffix} />
+      </div>
+      <div className="text-mist text-sm leading-snug">{label}</div>
+    </StaggerItem>
+  );
+}
 
 export default function HomePage() {
   const { t } = useLanguage();
   const { user, loading } = useAuth();
-  const [statsRef, statsInView] = useInView();
+  const { scrollY } = useScroll();
+  const gridY = useTransform(scrollY, [0, 600], [0, 80]);
+  const cueOpacity = useTransform(scrollY, [0, 120], [1, 0]);
 
   // Hide "Create Expert Account" if the authenticated user is already an expert
   const isExpert = !loading && user?.role === 'expert';
@@ -99,13 +100,6 @@ export default function HomePage() {
     },
   ];
 
-  const achievements = [
-    { labelKey: 'ach1', year: '2024', icon: '🔬' },
-    { labelKey: 'ach2', year: '2024', icon: '🌾' },
-    { labelKey: 'ach3', year: '2025', icon: '🇪🇺' },
-    { labelKey: 'ach4', year: '2025', icon: '🤖' },
-  ];
-
   const visionMission = [
     { titleKey: 'vision_title', icon: '🌍', textKey: 'vision_text' },
     { titleKey: 'mission_title', icon: '🎯', textKey: 'mission_text' },
@@ -120,81 +114,111 @@ export default function HomePage() {
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 pointer-events-none"
           style={{ background: 'radial-gradient(ellipse 80% 60% at 50% 30%, rgba(22,163,74,0.12) 0%, transparent 70%)' }} />
-        <div className="absolute inset-0 pointer-events-none opacity-10"
+        <motion.div
+          aria-hidden
+          className="absolute pointer-events-none opacity-10"
           style={{
+            inset: '-100px 0 0 0',
+            y: gridY,
             backgroundImage: 'linear-gradient(rgba(34,197,94,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(34,197,94,0.3) 1px, transparent 1px)',
             backgroundSize: '60px 60px',
           }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 text-center">
-          <div className="tag mb-8 mx-auto w-fit">
+        {/* Floating ambient orbs */}
+        <motion.div
+          aria-hidden
+          className="absolute pointer-events-none rounded-full"
+          style={{ width: 420, height: 420, top: '8%', left: '-6%', background: 'rgba(34,197,94,0.16)', filter: 'blur(120px)' }}
+          animate={{ y: [0, 36, 0], x: [0, 22, 0] }}
+          transition={{ duration: 16, repeat: Infinity, ease: 'easeInOut' }}
+        />
+        <motion.div
+          aria-hidden
+          className="absolute pointer-events-none rounded-full"
+          style={{ width: 360, height: 360, bottom: '4%', right: '-4%', background: 'rgba(217,164,65,0.10)', filter: 'blur(120px)' }}
+          animate={{ y: [0, -30, 0], x: [0, -18, 0] }}
+          transition={{ duration: 19, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        <motion.div
+          className="relative z-10 max-w-7xl mx-auto px-6 pt-32 pb-20 text-center"
+          variants={staggerContainer(0.12)}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={fadeUp} className="tag mb-8 mx-auto w-fit">
             <span className="w-2 h-2 bg-green-400 rounded-full inline-block pulse-dot" />
             {t('hero_badge')}
-          </div>
+          </motion.div>
 
-          <h1 className="font-bold mb-8"
-            style={{ fontFamily: 'Syne, Inter, sans-serif', fontSize: 'clamp(2.8rem, 6vw, 5.2rem)', lineHeight: 1.18, letterSpacing: '-0.01em', paddingBottom: '0.1em', overflow: 'visible' }}>
+          <motion.h1 variants={fadeUp} className="font-bold mb-8"
+            style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2.8rem, 6vw, 5.2rem)', lineHeight: 1.18, letterSpacing: '-0.01em', paddingBottom: '0.1em', overflow: 'visible' }}>
             {t('hero_title_1')}{' '}
             <span className="gradient-text">{t('hero_title_2')}</span>
             <br />
             {t('hero_title_3')}
-          </h1>
+          </motion.h1>
 
-
-          <p className="text-slate-400 max-w-2xl mx-auto mb-12 leading-relaxed" style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)' }}>
+          <motion.p variants={fadeUp} className="text-mist max-w-2xl mx-auto mb-12 leading-relaxed" style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)' }}>
             {t('hero_subtitle')}
-          </p>
+          </motion.p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-4">
             <Link to="/advisor" className="btn-primary text-base px-8 py-4">
               {t('hero_cta_primary')}
             </Link>
             <a href="#solution" className="btn-secondary text-base px-8 py-4">
               {t('hero_cta_secondary')}
             </a>
-          </div>
+          </motion.div>
 
-          <div className="flex flex-wrap justify-center gap-4 mt-16">
+          <motion.div variants={staggerContainer(0.08)} className="flex flex-wrap justify-center gap-4 mt-16">
             {[
-              { val: '100%', labelKey: 'hero_stat_2_label' },
-              { val: '€16,700', labelKey: 'hero_stat_1_label' },
-              { val: '237t', labelKey: 'hero_stat_3_label' },
+              { val: '~100%', labelKey: 'hero_stat_2_label' },
+              { val: '€57,796', labelKey: 'hero_stat_1_label' },
+              { val: '156 t', labelKey: 'hero_stat_3_label' },
             ].map(({ val, labelKey }) => (
-              <div key={labelKey} className="glass-card px-6 py-3 flex items-center gap-3" style={{ borderRadius: '100px' }}>
-                <span className="text-green-400 font-bold text-lg">{val}</span>
-                <span className="text-slate-400 text-sm">{t(labelKey)}</span>
-              </div>
+              <motion.div key={labelKey} variants={scaleIn} className="glass-card px-6 py-3 flex items-center gap-3" style={{ borderRadius: 'var(--radius-pill)' }}>
+                <span className="stat-number text-green-400 font-bold text-lg">{val}</span>
+                <span className="text-mist text-sm">{t(labelKey)}</span>
+              </motion.div>
             ))}
-          </div>
-        </div>
+          </motion.div>
 
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 animate-bounce">
-          <span className="text-slate-600 text-xs">Scroll</span>
+          <motion.p variants={fadeUp} className="text-mist-dim text-xs mt-6 tracking-wide">
+            {t('hero_model_badge')}
+          </motion.p>
+        </motion.div>
+
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{ opacity: cueOpacity }}
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <span className="text-mist-dim text-xs">Scroll</span>
           <svg className="w-5 h-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
           </svg>
-        </div>
+        </motion.div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
-          STATS BAR
+          STATS BAR — 100 ha test-farm model
       ═══════════════════════════════════════════════════════ */}
-      <section ref={statsRef} className="py-16 border-y" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map(({ value, suffix, prefix, labelKey }) => {
-              const count = useCounter(value, 1800, statsInView);
-              return (
-                <div key={labelKey} className="text-center">
-                  <div className="gradient-text font-bold mb-2" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', fontFamily: 'Syne, sans-serif' }}>
-                    {prefix}{statsInView ? count.toLocaleString() : 0}{suffix}
-                  </div>
-                  <div className="text-slate-500 text-sm leading-snug">{t(labelKey)}</div>
-                </div>
-              );
-            })}
-          </div>
+      <section className="py-16">
+        <div className="divider-fade" />
+        <div className="max-w-7xl mx-auto px-6 pt-16">
+          <StaggerGroup stagger={0.1} className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map(({ value, suffix, prefix, labelKey }) => (
+              <StatItem key={labelKey} value={value} prefix={prefix} suffix={suffix} label={t(labelKey)} />
+            ))}
+          </StaggerGroup>
+          <Reveal className="text-center mt-10">
+            <span className="tag tag-accent">{t('stats_model_caption')}</span>
+          </Reveal>
         </div>
+        <div className="divider-fade mt-16" />
       </section>
 
       {/* ═══════════════════════════════════════════════════════
@@ -202,54 +226,62 @@ export default function HomePage() {
       ═══════════════════════════════════════════════════════ */}
       <section id="about" className="py-28 max-w-7xl mx-auto px-6">
         <div className="grid md:grid-cols-2 gap-16 items-center">
-          <div>
+          <Reveal variants={slideInLeft}>
             <div className="tag mb-6">{t('mission_badge')}</div>
-            <h2 className="font-bold mb-6" style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 3rem)', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
+            <h2 className="font-bold mb-6" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', lineHeight: 1.1, letterSpacing: '-0.02em' }}>
               {t('about_title_1')}{' '}
               <span className="gradient-text">{t('about_title_2')}</span>
             </h2>
-            <p className="text-slate-400 leading-relaxed text-lg mb-6">{t('about_p1')}</p>
-            <p className="text-slate-400 leading-relaxed text-lg">{t('about_p2')}</p>
-          </div>
+            <p className="text-mist leading-relaxed text-lg mb-6">{t('about_p1')}</p>
+            <p className="text-mist leading-relaxed text-lg">{t('about_p2')}</p>
+          </Reveal>
 
-          <div className="grid grid-cols-1 gap-4">
+          <StaggerGroup stagger={0.12} className="grid grid-cols-1 gap-4">
             {visionMission.map(({ titleKey, icon, textKey }) => (
-              <div key={titleKey} className="glass-card-hover p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <span className="text-2xl">{icon}</span>
-                  <h3 className="text-white font-bold text-lg">{t(titleKey)}</h3>
-                </div>
-                <p className="text-slate-400 leading-relaxed">{t(textKey)}</p>
-              </div>
+              <StaggerItem key={titleKey} variants={slideInRight}>
+                <motion.div whileHover={{ y: -4 }} className="glass-card p-6 h-full">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
+                      style={{ background: 'var(--voneng-accent-soft)', border: '1px solid var(--voneng-accent-border)' }}>
+                      {icon}
+                    </span>
+                    <h3 className="text-white font-bold text-lg">{t(titleKey)}</h3>
+                  </div>
+                  <p className="text-mist leading-relaxed">{t(textKey)}</p>
+                </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           PROBLEM
       ═══════════════════════════════════════════════════════ */}
-      <section className="py-28" style={{ background: 'rgba(10,26,15,0.5)' }}>
+      <section className="py-28" style={{ background: 'rgba(11,27,17,0.5)' }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
+          <Reveal className="text-center mb-16">
             <div className="tag mb-6 mx-auto w-fit" style={{ background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.25)', color: '#f87171' }}>
               {t('section_problem')}
             </div>
-            <h2 className="font-bold mb-4" style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 3rem)', letterSpacing: '-0.02em' }}>
+            <h2 className="font-bold mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', letterSpacing: '-0.02em' }}>
               {t('problem_title_1')}
               <span style={{ color: '#f87171' }}> {t('problem_title_2')}</span>
             </h2>
-            <p className="text-slate-400 max-w-2xl mx-auto text-lg">{t('problem_subtitle')}</p>
-          </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <p className="text-mist max-w-2xl mx-auto text-lg">{t('problem_subtitle')}</p>
+          </Reveal>
+          <StaggerGroup stagger={0.09} className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {problems.map(({ icon, titleKey, descKey }) => (
-              <div key={titleKey} className="glass-card-hover p-6">
-                <div className="text-4xl mb-4">{icon}</div>
-                <h3 className="text-white font-bold text-lg mb-3">{t(titleKey)}</h3>
-                <p className="text-slate-400 text-sm leading-relaxed">{t(descKey)}</p>
-              </div>
+              <StaggerItem key={titleKey}>
+                <motion.div whileHover={{ y: -6 }} className="glass-card p-6 h-full"
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+                  <div className="text-4xl mb-4">{icon}</div>
+                  <h3 className="text-white font-bold text-lg mb-3">{t(titleKey)}</h3>
+                  <p className="text-mist text-sm leading-relaxed">{t(descKey)}</p>
+                </motion.div>
+              </StaggerItem>
             ))}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 
@@ -257,19 +289,24 @@ export default function HomePage() {
           SOLUTION
       ═══════════════════════════════════════════════════════ */}
       <section id="solution" className="py-28 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <div className="tag mb-6 mx-auto w-fit">{t('section_solution')}</div>
-          <h2 className="font-bold mb-4" style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2rem, 3.5vw, 3rem)', letterSpacing: '-0.02em' }}>
+          <h2 className="font-bold mb-4" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 3.5vw, 3rem)', letterSpacing: '-0.02em' }}>
             {t('solution_title')}
           </h2>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg">{t('solution_subtitle')}</p>
-        </div>
+          <p className="text-mist max-w-2xl mx-auto text-lg">{t('solution_subtitle')}</p>
+        </Reveal>
+
         {/* Product Visual */}
-        <div className="mb-14 relative rounded-3xl overflow-hidden shadow-2xl group" style={{ border: '1px solid rgba(34,197,94,0.2)' }}>
-          <img src="/team/Product Visuals.png" alt="VONeng Container System"
-            className="w-full object-cover max-h-[480px]" style={{ objectPosition: 'center' }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between">
+        <Reveal variants={scaleIn} className="mb-8 relative rounded-3xl overflow-hidden shadow-2xl group" style={{ border: '1px solid rgba(34,197,94,0.2)' }}>
+          <motion.img
+            src="/team/Product Visuals.png" alt="VONeng Container System"
+            className="w-full object-cover max-h-[480px]" style={{ objectPosition: 'center' }}
+            whileHover={{ scale: 1.03 }}
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none" />
+          <div className="absolute bottom-0 left-0 right-0 p-6 flex items-end justify-between pointer-events-none">
             <div>
               <div className="text-green-400 text-xs font-bold uppercase tracking-widest mb-1">The VONeng System</div>
               <p className="text-white font-bold text-lg leading-snug">Complete energy independence<br />in a single shipping container</p>
@@ -281,70 +318,102 @@ export default function HomePage() {
               ))}
             </div>
           </div>
-        </div>
+        </Reveal>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          {solutionSteps.map(({ step, titleKey, descKey, icon }) => (
-            <div key={step} className="glass-card-hover p-8 flex gap-6">
-              <div className="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-                style={{ background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(34,197,94,0.25)' }}>
-                {icon}
-              </div>
-              <div>
-                <div className="text-green-600 text-xs font-bold tracking-widest mb-2">STEP {step}</div>
-                <h3 className="text-white font-bold text-xl mb-3">{t(titleKey)}</h3>
-                <p className="text-slate-400 leading-relaxed">{t(descKey)}</p>
-              </div>
-            </div>
+        {/* System spec strip — 100 ha model */}
+        <StaggerGroup stagger={0.07} className="flex flex-wrap justify-center gap-3 mb-14">
+          {systemSpecs.map(spec => (
+            <StaggerItem key={spec} variants={scaleIn} as="span"
+              className="stat-number px-4 py-2 rounded-full text-sm font-semibold"
+              style={{ background: 'var(--voneng-accent-soft)', border: '1px solid var(--voneng-accent-border)', color: 'var(--voneng-accent)' }}>
+              {spec}
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
 
-        <div className="mt-16 text-center">
+        <StaggerGroup stagger={0.1} className="grid md:grid-cols-2 gap-6">
+          {solutionSteps.map(({ step, titleKey, descKey, icon }) => (
+            <StaggerItem key={step}>
+              <motion.div whileHover={{ y: -5 }} className="glass-card p-8 flex gap-6 h-full"
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+                <div className="flex-shrink-0 w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
+                  style={{ background: 'rgba(22,163,74,0.15)', border: '1px solid rgba(34,197,94,0.25)' }}>
+                  {icon}
+                </div>
+                <div>
+                  <div className="stat-number text-xs font-bold tracking-widest mb-2" style={{ color: 'var(--voneng-accent)' }}>STEP {step}</div>
+                  <h3 className="text-white font-bold text-xl mb-3">{t(titleKey)}</h3>
+                  <p className="text-mist leading-relaxed">{t(descKey)}</p>
+                </div>
+              </motion.div>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+
+        <Reveal className="mt-16 text-center">
           <div className="glass-card p-10 max-w-3xl mx-auto glow-border">
-            <h3 className="font-bold text-2xl mb-4" style={{ fontFamily: 'Syne, sans-serif' }}>
+            <h3 className="font-bold text-2xl mb-4" style={{ fontFamily: 'var(--font-display)' }}>
               {t('sol_cta_title')}
             </h3>
-            <p className="text-slate-400 mb-8">{t('sol_cta_desc')}</p>
+            <p className="text-mist mb-6">{t('sol_cta_desc')}</p>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-2 mb-8">
+              {financials.map(item => (
+                <span key={item} className="stat-number text-sm" style={{ color: 'var(--voneng-muted)' }}>
+                  {item}
+                </span>
+              ))}
+            </div>
             <Link to="/advisor" className="btn-primary text-base px-10 py-4 inline-block">
               {t('hero_cta_primary')}
             </Link>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           ROADMAP
       ═══════════════════════════════════════════════════════ */}
-      <section id="roadmap" className="py-28 overflow-hidden" style={{ background: 'rgba(10,26,15,0.5)' }}>
+      <section id="roadmap" className="py-28 overflow-hidden" style={{ background: 'rgba(11,27,17,0.5)' }}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-16">
+          <Reveal className="text-center mb-16">
             <div className="tag mb-6 mx-auto w-fit">Product Roadmap</div>
-            <h2 className="font-bold text-3xl mb-3" style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}>
+            <h2 className="font-bold text-3xl mb-3" style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>
               Deployment &amp; Development Roadmap
             </h2>
-          </div>
+          </Reveal>
 
           {/* Timeline */}
           <div className="relative">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4">
-              {roadmap.map(({ phase, name, color, hw, sw }, i) => (
-                <div key={phase} className="flex flex-col items-center relative">
+            {/* Connector line grows across the phase circles on desktop */}
+            <motion.div
+              aria-hidden
+              className="hidden lg:block absolute left-[10%] right-[10%] h-[2px] origin-left"
+              style={{ top: 27, background: 'linear-gradient(90deg, #22c55e, #14532d)' }}
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            />
+            <StaggerGroup stagger={0.12} className="grid grid-cols-1 lg:grid-cols-5 gap-6 lg:gap-4">
+              {roadmap.map(({ phase, name, color, hw, sw }) => (
+                <StaggerItem key={phase} variants={scaleIn} className="flex flex-col items-center relative">
                   {/* Phase circle */}
                   <div className="relative z-10 w-14 h-14 rounded-full flex items-center justify-center mb-5 flex-shrink-0 shadow-lg"
-                    style={{ background: `radial-gradient(circle, ${color}40, ${color}20)`, border: `2px solid ${color}` }}>
-                    <span className="font-black text-lg" style={{ color }}>{phase}</span>
+                    style={{ background: `radial-gradient(circle, ${color}40, ${color}20)`, border: `2px solid ${color}`, backgroundColor: 'var(--voneng-bg)' }}>
+                    <span className="stat-number font-black text-lg" style={{ color }}>{phase}</span>
                   </div>
 
                   {/* Card */}
-                  <div className="w-full glass-card rounded-2xl p-4 flex flex-col gap-3 flex-1 hover:scale-[1.03] transition-transform"
-                    style={{ borderColor: `${color}25` }}>
+                  <motion.div whileHover={{ y: -4 }} className="w-full glass-card rounded-2xl p-4 flex flex-col gap-3 flex-1"
+                    style={{ borderColor: `${color}25` }}
+                    transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
                     <h3 className="font-black text-white text-sm leading-tight whitespace-pre-line">{name}</h3>
 
                     {/* Hardware */}
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <span className="text-sm">🔧</span>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Hardware</span>
+                        <span className="text-[10px] font-black text-mist-dim uppercase tracking-widest">Hardware</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         {hw.map(item => (
@@ -360,7 +429,7 @@ export default function HomePage() {
                     <div>
                       <div className="flex items-center gap-1.5 mb-2">
                         <span className="text-sm">💻</span>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Software</span>
+                        <span className="text-[10px] font-black text-mist-dim uppercase tracking-widest">Software</span>
                       </div>
                       <div className="flex flex-col gap-1">
                         {sw.map(item => (
@@ -371,22 +440,22 @@ export default function HomePage() {
                         ))}
                       </div>
                     </div>
-                  </div>
-                </div>
+                  </motion.div>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
 
             {/* Legend */}
-            <div className="flex justify-center gap-6 mt-10">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+            <Reveal className="flex justify-center gap-6 mt-10">
+              <div className="flex items-center gap-2 text-xs text-mist-dim">
                 <span className="w-3 h-3 rounded" style={{ background: 'rgba(22,163,74,0.2)', border: '1px solid rgba(34,197,94,0.3)' }} />
                 🔧 Hardware milestones
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-mist-dim">
                 <span className="w-3 h-3 rounded" style={{ background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(99,179,237,0.3)' }} />
                 💻 Software milestones
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -395,67 +464,70 @@ export default function HomePage() {
           TEAM
       ═══════════════════════════════════════════════════════ */}
       <section id="team" className="py-28 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-16">
+        <Reveal className="text-center mb-16">
           <div className="tag mb-6 mx-auto w-fit">{t('section_team')}</div>
-          <h2 className="font-bold text-4xl mb-4" style={{ fontFamily: 'Syne, sans-serif', letterSpacing: '-0.02em' }}>
+          <h2 className="font-bold text-4xl mb-4" style={{ fontFamily: 'var(--font-display)', letterSpacing: '-0.02em' }}>
             {t('team_title')}
           </h2>
-          <p className="text-slate-400 max-w-xl mx-auto text-lg">{t('team_subtitle')}</p>
-        </div>
-        <div className="flex flex-wrap justify-center gap-6">
+          <p className="text-mist max-w-xl mx-auto text-lg">{t('team_subtitle')}</p>
+        </Reveal>
+        <StaggerGroup stagger={0.08} className="flex flex-wrap justify-center gap-6">
           {team.map(({ name, role, photo, linkedin }) => (
-            <div key={name} className="glass-card-hover p-6 text-center flex flex-col items-center"
-              style={{ width: 'clamp(160px, 18vw, 200px)' }}>
-              <div className="w-24 h-24 rounded-full overflow-hidden mx-auto mb-5 border-2 border-green-500/30 shadow-lg">
-                <img
-                  src={photo}
-                  alt={name}
-                  className="w-full h-full object-cover"
-                  onError={e => {
-                    e.target.style.display = 'none';
-                    e.target.parentNode.style.background = 'rgba(22,163,74,0.15)';
-                    e.target.parentNode.innerHTML = `<span style="font-size:1.5rem;font-weight:700;color:#22c55e;line-height:6rem">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</span>`;
-                  }}
-                />
-              </div>
-              <h3 className="text-white font-bold text-sm mb-1 leading-snug">{name}</h3>
-              <div className="text-green-500 text-xs font-semibold mb-3">{role}</div>
-              <a href={linkedin} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105"
-                style={{ background: 'rgba(10,102,194,0.15)', border: '1px solid rgba(10,102,194,0.35)', color: '#7eb3f5' }}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-                </svg>
-                LinkedIn
-              </a>
-            </div>
+            <StaggerItem key={name}>
+              <motion.div whileHover={{ y: -6 }} className="team-card glass-card p-6 text-center flex flex-col items-center h-full"
+                style={{ width: 'clamp(160px, 18vw, 200px)' }}
+                transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}>
+                <div className="team-photo w-24 h-24 rounded-full overflow-hidden mx-auto mb-5 border-2 border-green-500/30 shadow-lg transition-colors duration-300">
+                  <img
+                    src={photo}
+                    alt={name}
+                    className="w-full h-full object-cover"
+                    onError={e => {
+                      e.target.style.display = 'none';
+                      e.target.parentNode.style.background = 'rgba(22,163,74,0.15)';
+                      e.target.parentNode.innerHTML = `<span style="font-size:1.5rem;font-weight:700;color:#22c55e;line-height:6rem">${name.split(' ').map(w=>w[0]).join('').slice(0,2)}</span>`;
+                    }}
+                  />
+                </div>
+                <h3 className="text-white font-bold text-sm mb-1 leading-snug">{name}</h3>
+                <div className="text-green-500 text-xs font-semibold mb-3">{role}</div>
+                <a href={linkedin} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all hover:scale-105"
+                  style={{ background: 'rgba(10,102,194,0.15)', border: '1px solid rgba(10,102,194,0.35)', color: '#7eb3f5' }}>
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                  </svg>
+                  LinkedIn
+                </a>
+              </motion.div>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </section>
 
       {/* ═══════════════════════════════════════════════════════
           FOOTER CTA
       ═══════════════════════════════════════════════════════ */}
-      <section className="py-28" style={{ background: 'rgba(10,26,15,0.6)' }}>
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="font-bold mb-6" style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em' }}>
+      <section className="py-28" style={{ background: 'rgba(11,27,17,0.6)' }}>
+        <Reveal className="max-w-4xl mx-auto px-6 text-center">
+          <h2 className="font-bold mb-6" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 4vw, 3.5rem)', letterSpacing: '-0.02em' }}>
             {t('footer_cta_title_1')} <span className="gradient-text">{t('footer_cta_title_2')}</span>
           </h2>
-          <p className="text-slate-400 text-lg mb-10 max-w-2xl mx-auto">{t('footer_cta_body')}</p>
+          <p className="text-mist text-lg mb-10 max-w-2xl mx-auto">{t('footer_cta_body')}</p>
           <div className="flex flex-wrap gap-4 justify-center">
             <Link to="/advisor" className="btn-primary text-base px-10 py-4">{t('footer_cta_button')}</Link>
             {!isExpert && (
               <Link to="/signup" className="btn-secondary text-base px-10 py-4">{t('footer_create_account')}</Link>
             )}
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* FOOTER */}
-      <footer className="py-10 border-t" style={{ borderColor: 'rgba(34,197,94,0.1)' }}>
+      <footer className="py-10 border-t" style={{ borderColor: 'var(--voneng-border)' }}>
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-slate-600 text-sm">© 2025 VONeng. {t('footer_rights')}</span>
-          <div className="flex gap-6 text-sm text-slate-600">
+          <span className="text-mist-dim text-sm">© 2025 VONeng. {t('footer_rights')}</span>
+          <div className="flex gap-6 text-sm text-mist-dim">
             <a href="#about" className="hover:text-green-400 transition-colors">{t('nav_about')}</a>
             <a href="#solution" className="hover:text-green-400 transition-colors">{t('nav_solution')}</a>
             <Link to="/advisor" className="hover:text-green-400 transition-colors">{t('nav_advisor')}</Link>

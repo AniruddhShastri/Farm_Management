@@ -28,7 +28,7 @@ const REGIONAL_FALLBACK = {
   // Oceania
   australia: 0.22, newzealand: 0.18,
   // Default
-  default: 0.20,
+  default: 0.25,
 };
 
 function matchRegion(locationStr = '') {

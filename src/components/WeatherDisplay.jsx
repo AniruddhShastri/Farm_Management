@@ -4,7 +4,7 @@ function WeatherDisplay({ location, temperature, humidity }) {
   return (
     <div className="flex items-center gap-5 px-4 py-2.5">
       <div className="flex flex-col">
-        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Station</span>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-mist mb-1">Station</span>
         <span className="text-sm font-bold text-slate-700">{location}</span>
       </div>
 
@@ -18,7 +18,7 @@ function WeatherDisplay({ location, temperature, humidity }) {
             </svg>
           </div>
           <div>
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Temp</span>
+            <span className="block text-[10px] font-bold text-mist uppercase tracking-wider">Temp</span>
             <span className="text-sm font-black text-white">{temperature}°C</span>
           </div>
         </div>
@@ -30,7 +30,7 @@ function WeatherDisplay({ location, temperature, humidity }) {
             </svg>
           </div>
           <div>
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Humid</span>
+            <span className="block text-[10px] font-bold text-mist uppercase tracking-wider">Humid</span>
             <span className="text-sm font-black text-white">{humidity}%</span>
           </div>
         </div>

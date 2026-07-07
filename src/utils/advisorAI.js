@@ -134,8 +134,8 @@ async function findLocation(locationStr, climateOverride = null) {
       humidity: 60,
       annual_rainfall_mm: climateOverride.annual_rainfall_mm || 600,
       solar_irradiance_kwh_m2_day: climateOverride.solar_irradiance_kwh_m2_day || 3.5,
-      electricity_price_eur: climateOverride.electricity_price_eur_per_kwh || 0.20,
-      export_price_eur: (climateOverride.electricity_price_eur_per_kwh || 0.20) * 0.3,
+      electricity_price_eur: climateOverride.electricity_price_eur_per_kwh || 0.25,
+      export_price_eur: 0.07,
       grid_co2_kg_per_kwh: climateOverride.grid_co2_kg_per_kwh || 0.200,
       crops: ["wheat", "barley", "corn", "potatoes"]
     }];
@@ -189,8 +189,8 @@ async function findLocation(locationStr, climateOverride = null) {
     // Adjust fallback financials based on country
     const isIndia = loc.country === 'India';
     const isUS = loc.country === 'United States';
-    const elecPrice = isIndia ? 0.08 : (isUS ? 0.15 : 0.22);
-    const exportPrice = isIndia ? 0.04 : (isUS ? 0.05 : 0.08);
+    const elecPrice = isIndia ? 0.08 : (isUS ? 0.15 : 0.25);
+    const exportPrice = isIndia ? 0.04 : (isUS ? 0.05 : 0.07);
     const co2Grid = isIndia ? 0.700 : (isUS ? 0.380 : 0.250);
 
     return [locName + ' (Live Open-Meteo)', {
@@ -253,7 +253,7 @@ export async function executeFunction(name, args) {
       const cropEffective = buildCropMap(args, cycles); // ha*cycles for carbon
 
       const energyReq = getEnergyRequirement(numCows, numPigs, numChickens, cropMap);
-      const elecPrice = loc.electricity_price_eur || 0.20;
+      const elecPrice = loc.electricity_price_eur || 0.25;
       const gridCO2 = loc.grid_co2_kg_per_kwh || 0.25;
 
       const annualElecCost = Math.round(energyReq * elecPrice);
@@ -289,12 +289,12 @@ export async function executeFunction(name, args) {
 
       const solarIrr = loc.solar_irradiance_kwh_m2_day;
       const winterTemp = loc.winter_temperature_min_c;
-      const elecPrice = loc.electricity_price_eur || 0.20;
+      const elecPrice = loc.electricity_price_eur || 0.25;
       const gridCO2 = loc.grid_co2_kg_per_kwh || 0.25;
       const rainfall = loc.annual_rainfall_mm || 600;
 
-      // Panel efficiency 0.20 (the corrected formula)
-      const solarGen = Math.round(solarM2 * solarIrr * 0.20 * 365);
+      // Panel efficiency 21% (Trina Vertex S reference, Book1.xlsx)
+      const solarGen = Math.round(solarM2 * solarIrr * 0.21 * 365);
       const biogasGen = getBiogasEnergy(numCows, numPigs, numChickens, winterTemp);
       const totalGen = solarGen + biogasGen;
 
@@ -318,8 +318,8 @@ export async function executeFunction(name, args) {
       // Rainwater
       const waterHarvestKL = Math.round(getWaterHarvest(roofM2, rainfall) / 1000);
 
-      // Carbon credits (EU ETS €65/ton)
-      const carbonCredits = Math.round(parseFloat(totalCarbonOffset) * 65);
+      // Carbon credits (€70/t CO₂e, Book1.xlsx)
+      const carbonCredits = Math.round(parseFloat(totalCarbonOffset) * 70);
       const totalAnnualValue = elecSavings + digestateSavings + carbonCredits;
 
       const totalHa = Object.values(cropMap).reduce((s, v) => s + v, 0);

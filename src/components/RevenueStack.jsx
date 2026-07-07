@@ -13,7 +13,7 @@ function RevenueStack({ revenue }) {
         <div className="flex items-center justify-between rounded-xl bg-white/5 border border-white/10 p-3">
           <div>
             <p className="text-sm font-bold text-white">Avoided cost</p>
-            <p className="text-xs text-slate-400">({selfConsumedKwh?.toLocaleString?.() || 0} kWh self-used)</p>
+            <p className="text-xs text-mist">({selfConsumedKwh?.toLocaleString?.() || 0} kWh self-used)</p>
           </div>
           <span className="text-lg font-black text-white">{formatCurrencyEuro(avoidedCostEur)}/yr</span>
         </div>
@@ -33,7 +33,7 @@ function RevenueStack({ revenue }) {
         </div>
       </div>
       <div className="mt-4 pt-4 border-t border-white/10 flex justify-between items-center px-1">
-        <span className="text-sm font-black text-slate-400 uppercase tracking-widest">Annual Total</span>
+        <span className="text-sm font-black text-mist uppercase tracking-widest">Annual Total</span>
         <span className="text-2xl font-black text-green-400">{formatCurrencyEuro(totalEur)}</span>
       </div>
     </div>

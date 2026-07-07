@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import { fadeUp, staggerContainer } from '../components/motion';
 import AIChatPanel from '../components/AIChatPanel';
 import locationData from '../../locationData.json';
 import {
@@ -30,24 +32,25 @@ const CROP_LABELS = {
 /* ── Small helpers ── */
 function ResultBlock({ icon, title, color, children }) {
   return (
-    <div
+    <motion.div
+      variants={fadeUp}
       className="rounded-2xl p-6"
       style={{ background: `rgba(${color},0.06)`, border: `1px solid rgba(${color},0.2)` }}
     >
       <div className="flex items-center gap-3 mb-5">
         <span className="text-2xl">{icon}</span>
-        <h3 className="text-white font-bold text-xl" style={{ fontFamily: 'Syne, sans-serif' }}>{title}</h3>
+        <h3 className="text-white font-bold text-xl" style={{ fontFamily: 'var(--font-display)' }}>{title}</h3>
       </div>
       {children}
-    </div>
+    </motion.div>
   );
 }
 
 function Row({ label, value, highlight }) {
   return (
     <div className="flex items-center justify-between py-2 border-b" style={{ borderColor: 'rgba(255,255,255,0.05)' }}>
-      <span className="text-slate-400 text-sm">{label}</span>
-      <span className={`font-semibold text-sm ${highlight ? 'text-green-400' : 'text-white'}`}>{value}</span>
+      <span className="text-mist text-sm">{label}</span>
+      <span className={`stat-number font-semibold text-sm ${highlight ? 'text-green-400' : 'text-white'}`}>{value}</span>
     </div>
   );
 }
@@ -73,7 +76,7 @@ function Question({ number, question, children }) {
 function Field({ label, error, children, className = '' }) {
   return (
     <div className={className}>
-      <label className="text-slate-400 text-sm font-medium mb-1.5 block">{label}</label>
+      <label className="text-mist text-sm font-medium mb-1.5 block">{label}</label>
       {children}
       {error && <p className="text-red-400 text-xs mt-1">{error}</p>}
     </div>
@@ -174,7 +177,7 @@ function ContactForm({ user }) {
         />
       </Field>
 
-      <p className="text-slate-600 text-xs">* Required fields</p>
+      <p className="text-mist-dim text-xs">* Required fields</p>
 
       <div className="grid grid-cols-2 gap-3">
         <button
@@ -287,7 +290,7 @@ export default function AdvisorPage() {
       const roofM2 = parseFloat(roofArea) || 0;
 
       const loc = locationData.locations[location];
-      const solarIrr = loc?.solar_irradiance_kwh_m2_day || 4.5;
+      const solarIrr = loc?.solar_irradiance_kwh_m2_day || 3.5;
       const winterTemp = loc?.winter_temperature_min_c ?? 5;
       const rainfall = loc?.annual_rainfall_mm || 600;
 
@@ -304,12 +307,12 @@ export default function AdvisorPage() {
         }
       });
 
-      const solarGen = solarM2 * solarIrr * 0.20 * 365;
+      const solarGen = getSolarEnergy(solarM2, solarIrr);
       const biogasGen = getBiogasEnergy(numCows, numPigs, numChickens, winterTemp);
       const totalGen = solarGen + biogasGen;
       const energyReq = getEnergyRequirement(numCows, numPigs, numChickens, cropFlat);
 
-      const elecPrice = loc?.electricity_price_eur || 0.20;
+      const elecPrice = loc?.electricity_price_eur || 0.25;
       const elecSavings = Math.min(totalGen, energyReq) * elecPrice;
 
       const gridCO2 = loc?.grid_co2_kg_per_kwh || 0.25;
@@ -324,7 +327,7 @@ export default function AdvisorPage() {
       const digestateSavings = getDigestateSavingsEur(annualBiogasM3);
 
       const waterHarvest = roofM2 > 0 ? roofM2 * (rainfall / 1000) * 0.85 * 1000 : 0;
-      const carbonCredits = totalCarbonOffset * 65;
+      const carbonCredits = totalCarbonOffset * 70; // €70/t CO₂e (Book1.xlsx)
       const baselineElec = energyReq * elecPrice;
       const fertCost = totalHa * 300;
 
@@ -363,16 +366,21 @@ export default function AdvisorPage() {
 
       <div className="max-w-3xl mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center mb-10">
-          <div className="tag mb-4 mx-auto w-fit">{t('advisor_badge')}</div>
-          <h1 className="font-bold mb-3" style={{ fontFamily: 'Syne, sans-serif', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.02em', lineHeight: 1.2, overflow: 'visible', paddingBottom: '0.1em' }}>
+        <motion.div
+          className="text-center mb-10"
+          variants={staggerContainer(0.08)}
+          initial="hidden"
+          animate="visible"
+        >
+          <motion.div variants={fadeUp} className="tag mb-4 mx-auto w-fit">{t('advisor_badge')}</motion.div>
+          <motion.h1 variants={fadeUp} className="font-bold mb-3" style={{ fontFamily: 'var(--font-display)', fontSize: 'clamp(2rem, 4vw, 3rem)', letterSpacing: '-0.02em', lineHeight: 1.2, overflow: 'visible', paddingBottom: '0.1em' }}>
             {t('advisor_title_1')} <span className="gradient-text">{t('advisor_title_2')}</span>
-          </h1>
-          <p className="text-slate-400 text-lg max-w-xl mx-auto">
+          </motion.h1>
+          <motion.p variants={fadeUp} className="text-mist text-lg max-w-xl mx-auto">
             {t('advisor_subtitle')}
-          </p>
+          </motion.p>
           {!user && (
-            <p className="text-slate-600 text-sm mt-3">
+            <p className="text-mist-dim text-sm mt-3">
               {t('advisor_no_account')}{' '}
               <Link to="/signup" className="text-green-500 hover:text-green-400 transition-colors">
                 {t('advisor_sign_up')}
@@ -380,11 +388,17 @@ export default function AdvisorPage() {
               {t('advisor_sign_up_text')}
             </p>
           )}
-        </div>
+        </motion.div>
 
         {/* ══════════ FORM ══════════ */}
         {step === 'form' && (
-          <form onSubmit={calculate} className="glass-card p-8 flex flex-col gap-8">
+          <motion.form
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: 0.15 }}
+            onSubmit={calculate}
+            className="glass-card p-8 flex flex-col gap-8"
+          >
 
             <Question number="1" question={t('advisor_q1')}>
               <select
@@ -417,7 +431,7 @@ export default function AdvisorPage() {
                   { label: `🐔 ${t('advisor_chickens')}`, val: chickens, set: setChickens },
                 ].map(({ label, val, set }) => (
                   <div key={label}>
-                    <label className="text-slate-500 text-xs mb-1 block">{label}</label>
+                    <label className="text-mist text-xs mb-1 block">{label}</label>
                     <input
                       className="input-field text-center"
                       type="number"
@@ -437,7 +451,7 @@ export default function AdvisorPage() {
                 const remaining = 3 - usedCycles;
                 return (
                   <div className="mb-3 flex items-center gap-2">
-                    <span className="text-xs text-slate-500">Crop cycle budget:</span>
+                    <span className="text-xs text-mist">Crop cycle budget:</span>
                     {[1,2,3].map(i => (
                       <span key={i} className="w-2.5 h-2.5 rounded-full inline-block"
                         style={{ background: i <= usedCycles ? '#22c55e' : 'rgba(255,255,255,0.1)' }} />
@@ -453,7 +467,7 @@ export default function AdvisorPage() {
                   <div key={crop} className="grid grid-cols-3 gap-3 items-center">
                     <span className="text-slate-300 text-sm font-medium">{CROP_LABELS[crop] || crop}</span>
                     <div>
-                      <label className="text-slate-600 text-xs mb-1 block">{t('advisor_hectares')}</label>
+                      <label className="text-mist-dim text-xs mb-1 block">{t('advisor_hectares')}</label>
                       <input
                         className="input-field text-center"
                         type="number"
@@ -465,7 +479,7 @@ export default function AdvisorPage() {
                       />
                     </div>
                     <div>
-                      <label className="text-slate-600 text-xs mb-1 block">{t('advisor_cycles')}</label>
+                      <label className="text-mist-dim text-xs mb-1 block">{t('advisor_cycles')}</label>
                       <select
                         className="input-field"
                         value={crops[crop]?.cycles || 1}
@@ -479,7 +493,7 @@ export default function AdvisorPage() {
                   </div>
                 ))}
                 {availableCrops.length === 0 && (
-                  <p className="text-slate-600 text-sm">Select a location first to see available crops.</p>
+                  <p className="text-mist-dim text-sm">Select a location first to see available crops.</p>
                 )}
               </div>
             </Question>
@@ -487,15 +501,15 @@ export default function AdvisorPage() {
             <Question number="4" question={t('advisor_q4')}>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-slate-500 text-xs mb-1 block">🏠 {t('advisor_roof')} (m²)</label>
+                  <label className="text-mist text-xs mb-1 block">🏠 {t('advisor_roof')} (m²)</label>
                   <input className="input-field text-center" type="number" min="0" placeholder="e.g. 400" value={roofArea} onChange={e => setRoofArea(e.target.value)} />
                 </div>
                 <div>
-                  <label className="text-slate-500 text-xs mb-1 block">⚡ Open solar area (m²)</label>
+                  <label className="text-mist text-xs mb-1 block">⚡ Open solar area (m²)</label>
                   <input className="input-field text-center" type="number" min="0" placeholder="e.g. 200" value={solarArea} onChange={e => setSolarArea(e.target.value)} />
                 </div>
               </div>
-              <p className="text-slate-600 text-xs mt-2">{t('advisor_roof_hint')}</p>
+              <p className="text-mist-dim text-xs mt-2">{t('advisor_roof_hint')}</p>
             </Question>
 
             {inputError && (
@@ -520,32 +534,38 @@ export default function AdvisorPage() {
                 </>
               ) : `🌿 ${t('advisor_calculate')}`}
             </button>
-          </form>
+          </motion.form>
         )}
 
         {/* ══════════ RESULTS ══════════ */}
         {step === 'results' && results && (
-          <div className="flex flex-col gap-6">
+          <motion.div
+            className="flex flex-col gap-6"
+            variants={staggerContainer(0.1)}
+            initial="hidden"
+            animate="visible"
+          >
             {/* Summary banner */}
-            <div
+            <motion.div
+              variants={fadeUp}
               className="rounded-2xl p-6 text-center"
               style={{
                 background: 'linear-gradient(135deg, rgba(22,163,74,0.2), rgba(16,185,129,0.1))',
                 border: '1px solid rgba(34,197,94,0.35)',
               }}
             >
-              <div className="text-slate-400 text-sm mb-2">With VONeng, your farm could generate</div>
-              <div className="gradient-text font-bold" style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', fontFamily: 'Syne, sans-serif' }}>
+              <div className="text-mist text-sm mb-2">With VONeng, your farm could generate</div>
+              <div className="gradient-text stat-number font-bold" style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)' }}>
                 €{results.totalAnnualValue.toLocaleString()}
               </div>
-              <div className="text-slate-400 text-sm mt-1">in annual savings and revenue</div>
+              <div className="text-mist text-sm mt-1">in annual savings and revenue</div>
               <div className="flex flex-wrap justify-center gap-4 mt-5">
                 <span className="tag">🌍 {results.totalCarbonOffset} tons CO₂ offset/year</span>
                 {results.numCows + results.numPigs + results.numChickens > 0 && (
                   <span className="tag">⚡ {Math.round((results.totalGen / Math.max(results.energyReq, 1)) * 100)}% energy independence</span>
                 )}
               </div>
-            </div>
+            </motion.div>
 
             <ResultBlock icon="💸" title="Your Farm Today" color="239,68,68">
               <Row label="Annual electricity cost" value={`€${results.baselineElec.toLocaleString()}/yr`} />
@@ -571,7 +591,7 @@ export default function AdvisorPage() {
                 <span className="text-green-400 font-bold text-lg">€{results.totalAnnualValue.toLocaleString()}/yr</span>
               </div>
               {results.digestateLiters > 0 && (
-                <div className="mt-4 p-3 rounded-xl text-xs text-slate-400" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.1)' }}>
+                <div className="mt-4 p-3 rounded-xl text-xs text-mist" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.1)' }}>
                   🌱 Your biogas digester will produce <strong className="text-green-400">{results.digestateLiters.toLocaleString()} liters</strong> of bio fertilizer (digestate) per year. Replacing chemical fertilizer on your fields at no cost.
                 </div>
               )}
@@ -592,12 +612,12 @@ export default function AdvisorPage() {
             </ResultBlock>
 
             {/* ── CTA block: conditional on auth state ── */}
-            <div className="glass-card p-8 text-center">
+            <motion.div variants={fadeUp} className="glass-card p-8 text-center">
               <div className="text-3xl mb-3">📞</div>
-              <h3 className="text-white font-bold text-xl mb-3" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h3 className="text-white font-bold text-xl mb-3" style={{ fontFamily: 'var(--font-display)' }}>
                 Interested? Let's Talk.
               </h3>
-              <p className="text-slate-400 text-sm mb-6 max-w-sm mx-auto">
+              <p className="text-mist text-sm mb-6 max-w-sm mx-auto">
                 Share your details with our team and we'll prepare a personalised proposal
                 for your farm — including financing options.
               </p>
@@ -616,10 +636,10 @@ export default function AdvisorPage() {
                   Create an Account to Continue
                 </button>
               )}
-            </div>
+            </motion.div>
 
             {/* Reset + Expert mode */}
-            <div className="flex flex-wrap gap-3 justify-center">
+            <motion.div variants={fadeUp} className="flex flex-wrap gap-3 justify-center">
               <button
                 onClick={() => { setStep('form'); setResults(null); }}
                 className="btn-secondary text-sm px-6 py-3"
@@ -636,14 +656,14 @@ export default function AdvisorPage() {
                   Sign in for Expert View
                 </Link>
               )}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         )}
 
         {/* ── Expert access note for guests ── */}
         {!user && (
           <div className="mt-10 glass-card p-6 text-center">
-            <div className="text-slate-500 text-sm">
+            <div className="text-mist text-sm">
               <strong className="text-slate-300">Engineers and Investors:</strong>{' '}
               <Link to="/signup" className="text-green-500 hover:text-green-400 transition-colors">
                 Create an expert account
@@ -662,10 +682,10 @@ export default function AdvisorPage() {
           >
             <div className="text-center mb-6">
               <div className="text-3xl mb-3">📬</div>
-              <h3 className="text-white font-bold text-2xl mb-2" style={{ fontFamily: 'Syne, sans-serif' }}>
+              <h3 className="text-white font-bold text-2xl mb-2" style={{ fontFamily: 'var(--font-display)' }}>
                 Get in Touch
               </h3>
-              <p className="text-slate-400 text-sm max-w-md mx-auto">
+              <p className="text-mist text-sm max-w-md mx-auto">
                 Fill in your details and reach us via WhatsApp or Email. We'll prepare a personalised proposal for your farm.
               </p>
             </div>

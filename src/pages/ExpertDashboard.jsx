@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import KPICards from '../components/KPICards';
 import Charts from '../components/Charts';
@@ -39,6 +40,10 @@ import {
   getBiogasCHPSplit,
   getBESSCapacity,
   getInfrastructureCosts,
+  getSolarPeakKwp,
+  getLivestockEnergy,
+  getCropProcessingEnergy,
+  getBaseInfrastructureEnergy,
 } from '../utils/calculator';
 import { getElectricityPrice } from '../utils/electricityPrice';
 import locationData from '../../locationData.json';
@@ -46,16 +51,17 @@ import locationData from '../../locationData.json';
 /* ── Small reusable metric card ── */
 function MetricCard({ label, value, unit, sub, accent = '#22c55e', icon }) {
   return (
-    <div className="glass-card rounded-2xl p-5 flex flex-col gap-1 hover:scale-[1.02] transition-transform">
+    <motion.div whileHover={{ y: -3 }} className="surface-card rounded-2xl p-5 flex flex-col gap-1"
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
       <div className="flex items-center justify-between mb-1">
-        <span className="text-slate-500 text-xs font-bold uppercase tracking-widest">{label}</span>
+        <span className="text-mist text-xs font-bold uppercase tracking-widest">{label}</span>
         {icon && <span className="text-lg">{icon}</span>}
       </div>
-      <div className="font-black text-2xl" style={{ color: accent }}>
-        {value}<span className="text-base font-semibold ml-1 text-slate-400">{unit}</span>
+      <div className="stat-number font-black text-2xl" style={{ color: accent }}>
+        {value}<span className="text-base font-semibold ml-1 text-mist">{unit}</span>
       </div>
-      {sub && <div className="text-slate-500 text-xs mt-1">{sub}</div>}
-    </div>
+      {sub && <div className="text-mist text-xs mt-1">{sub}</div>}
+    </motion.div>
   );
 }
 
@@ -65,13 +71,16 @@ function EnergyFlowBar({ label, kwh, total, color }) {
   return (
     <div className="mb-3">
       <div className="flex justify-between text-xs mb-1">
-        <span className="text-slate-400 font-semibold">{label}</span>
-        <span className="text-white font-bold">{kwh.toLocaleString()} kWh</span>
+        <span className="text-mist font-semibold">{label}</span>
+        <span className="stat-number text-white font-bold">{kwh.toLocaleString()} kWh</span>
       </div>
-      <div className="h-2 rounded-full bg-slate-800">
-        <div className="h-2 rounded-full transition-all duration-700" style={{ width: `${pct}%`, background: color }} />
+      <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
+        <motion.div className="h-2 rounded-full" style={{ background: color }}
+          initial={false}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }} />
       </div>
-      <div className="text-right text-xs text-slate-600 mt-0.5">{pct.toFixed(1)}%</div>
+      <div className="text-right text-xs text-mist-dim mt-0.5">{pct.toFixed(1)}%</div>
     </div>
   );
 }
@@ -100,7 +109,7 @@ function ExpertDashboard() {
   });
 
   const [baselineInputs, setBaselineInputs] = useState(null);
-  const [electricityPriceInfo, setElectricityPriceInfo] = useState({ price: 0.15, label: 'Loading…' });
+  const [electricityPriceInfo, setElectricityPriceInfo] = useState({ price: 0.25, label: 'Loading…' });
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const calculateRainfallFromLocation = (location) => {
@@ -204,8 +213,8 @@ function ExpertDashboard() {
     totalRequiredKwh: totalEnergyRequired,
     gridExportLimitKW: inputs.gridExportLimitKW || 0,
     electricityPriceEurPerKwh: elecPrice,
-    exportPriceEurPerKwh: elecPrice * 0.4,
-    carbonCreditEurPerKwh: 0.02
+    exportPriceEurPerKwh: 0.07,      // EU small-PV feed-in reference (Book1.xlsx)
+    carbonCreditEurPerKwh: 0.0175    // 0.25 kg CO₂e/kWh × €70/t
   });
   const methaneSavingsCo2e = getMethaneSavingsCo2e(annualBiogasM3, inputs.manureManagement || 'open_lagoon');
 
@@ -223,8 +232,8 @@ function ExpertDashboard() {
           <span className="text-green-400 text-xs font-bold uppercase tracking-widest">Expert Dashboard</span>
         </div>
         <div className="flex items-center gap-4">
-          <Link to="/advisor" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors">Farmer Advisor</Link>
-          <Link to="/" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors">Back to Site</Link>
+          <Link to="/advisor" className="text-mist hover:text-green-400 text-xs font-medium transition-colors">Farmer Advisor</Link>
+          <Link to="/" className="text-mist hover:text-green-400 text-xs font-medium transition-colors">Back to Site</Link>
         </div>
       </div>
 
@@ -241,8 +250,8 @@ function ExpertDashboard() {
           <div className="lg:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3 bg-[#030a06]/90 backdrop-blur-md border-b border-white/10">
             <img src={logo} alt="Logo" className="h-7 w-auto object-contain" />
             <div className="flex items-center gap-2">
-              <Link to="/advisor" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Advisor</Link>
-              <Link to="/" className="text-slate-400 hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Home</Link>
+              <Link to="/advisor" className="text-mist hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Advisor</Link>
+              <Link to="/" className="text-mist hover:text-green-400 text-xs font-medium transition-colors px-2 py-1">Home</Link>
               <button onClick={() => setIsSidebarOpen(true)} className="p-2 bg-green-400/10 text-green-400 rounded-xl ml-1">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/>
@@ -263,13 +272,13 @@ function ExpertDashboard() {
                   <div className="hidden lg:flex items-center gap-3 mb-4">
                     <div>
                       <img src={logo} alt="VonEng" className="h-8 lg:h-10 w-auto object-contain mb-1" />
-                      <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">Circular Systems Hub</p>
+                      <p className="text-[10px] font-black text-mist uppercase tracking-[0.3em]">Circular Systems Hub</p>
                     </div>
                   </div>
                   <h2 className="text-xl sm:text-2xl lg:text-3xl font-black text-white mb-2 leading-tight">
                     Future-Ready Farm Modeling
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed mb-4">
+                  <p className="text-xs sm:text-sm text-mist max-w-2xl leading-relaxed mb-4">
                     Model energy, water, and resource flows for climate-positive operations at <span className="text-white font-bold">{inputs.location}</span>.
                   </p>
                   {/* Electricity price badge */}
@@ -330,14 +339,14 @@ function ExpertDashboard() {
                   accent={isCapped ? '#f59e0b' : '#22c55e'}
                 />
                 <MetricCard label="Effective Volume" icon="📦" value={effectiveVolume} unit="m³" sub="90% of total (10% headspace)" accent="#22c55e" />
-                <MetricCard label="BESS Capacity" icon="🔋" value={bessCapacity} unit="kWh" sub={`PV:BESS = 1:3 · ${(inputs.solarArea * 0.2).toFixed(1)} kWp solar`} accent="#818cf8" />
-                <MetricCard label="Solar Peak" icon="☀️" value={(inputs.solarArea * 0.2).toFixed(1)} unit="kWp" sub={`${inputs.solarArea} m² @ 20% eff.`} accent="#fbbf24" />
+                <MetricCard label="BESS Capacity" icon="🔋" value={bessCapacity} unit="kWh" sub={`PV:BESS = 1:3 · ${getSolarPeakKwp(inputs.solarArea).toFixed(1)} kWp solar`} accent="#818cf8" />
+                <MetricCard label="Solar Peak" icon="☀️" value={getSolarPeakKwp(inputs.solarArea).toFixed(1)} unit="kWp" sub={`${inputs.solarArea} m² @ 21% eff.`} accent="#fbbf24" />
               </div>
 
               {/* Digester volume bar */}
               {rawVolume > 0 && (
                 <div className="glass-card rounded-2xl p-5">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4">Digester Load vs Capacity</div>
+                  <div className="text-xs font-bold text-mist uppercase tracking-widest mb-4">Digester Load vs Capacity</div>
                   <div className="flex items-center gap-4">
                     <div className="flex-1 h-4 rounded-full bg-slate-800 overflow-hidden">
                       <div className="h-4 rounded-full transition-all duration-700"
@@ -347,7 +356,7 @@ function ExpertDashboard() {
                       {Math.min(rawVolume, 120).toFixed(0)} / 120 m³ {isCapped && <span className="text-yellow-400">CAPPED</span>}
                     </span>
                   </div>
-                  <p className="text-slate-500 text-xs mt-2">
+                  <p className="text-mist text-xs mt-2">
                     {isCapped
                       ? `Farm requires ${rawVolume.toFixed(0)} m³ but system is capped at 120 m³. Biogas and fertilizer output are scaled proportionally.`
                       : `${((rawVolume / 120) * 100).toFixed(0)}% of maximum digester capacity utilised.`}
@@ -365,25 +374,25 @@ function ExpertDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Generation breakdown */}
                 <div className="glass-card rounded-2xl p-6">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Generation Sources</div>
+                  <div className="text-xs font-bold text-mist uppercase tracking-widest mb-5">Generation Sources</div>
                   <EnergyFlowBar label="Biogas → Direct Use (30%)" kwh={chpSplit.directUseKwh} total={totalEnergy} color="#22c55e" />
                   <EnergyFlowBar label="Biogas → Micro-CHP (70%)" kwh={chpSplit.chpKwh} total={totalEnergy} color="#4ade80" />
                   <EnergyFlowBar label="Solar PV" kwh={Math.round(solarEnergy)} total={totalEnergy} color="#fbbf24" />
                   <div className="mt-4 pt-4 border-t border-slate-800 flex justify-between text-sm">
-                    <span className="text-slate-400 font-semibold">Total Generated</span>
+                    <span className="text-mist font-semibold">Total Generated</span>
                     <span className="text-white font-black">{totalEnergy.toLocaleString()} kWh/yr</span>
                   </div>
                 </div>
 
                 {/* Demand breakdown */}
                 <div className="glass-card rounded-2xl p-6">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Demand Breakdown</div>
-                  <EnergyFlowBar label="Livestock Operations" kwh={Math.round(inputs.cows * 500 + inputs.pigs * 50 + inputs.chickens * 2)} total={totalEnergyRequired} color="#818cf8" />
-                  <EnergyFlowBar label="Crop Processing" kwh={Math.round(Object.values(cropAreas).reduce((s, v) => s + v, 0) * 600 * 9/12)} total={totalEnergyRequired} color="#a78bfa" />
+                  <div className="text-xs font-bold text-mist uppercase tracking-widest mb-5">Demand Breakdown</div>
+                  <EnergyFlowBar label="Livestock Operations" kwh={getLivestockEnergy(inputs.cows, inputs.pigs, inputs.chickens)} total={totalEnergyRequired} color="#818cf8" />
+                  <EnergyFlowBar label="Crop Processing" kwh={getCropProcessingEnergy(cropAreas)} total={totalEnergyRequired} color="#a78bfa" />
                   <EnergyFlowBar label="Irrigation Pumping" kwh={irrigationKwh} total={totalEnergyRequired} color="#60a5fa" />
-                  <EnergyFlowBar label="Base Infrastructure" kwh={2000} total={totalEnergyRequired} color="#94a3b8" />
+                  <EnergyFlowBar label="Base Infrastructure" kwh={getBaseInfrastructureEnergy(inputs.cows, inputs.pigs, inputs.chickens, cropAreas)} total={totalEnergyRequired} color="#94a3b8" />
                   <div className="mt-4 pt-4 border-t border-slate-800 flex justify-between text-sm">
-                    <span className="text-slate-400 font-semibold">Total Required</span>
+                    <span className="text-mist font-semibold">Total Required</span>
                     <span className="text-white font-black">{totalEnergyRequired.toLocaleString()} kWh/yr</span>
                   </div>
                 </div>
@@ -395,11 +404,11 @@ function ExpertDashboard() {
                   <div className="w-10 h-10 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-xl">🔋</div>
                   <div>
                     <div className="text-white font-bold text-sm">Battery Energy Storage System</div>
-                    <div className="text-slate-400 text-xs mt-0.5">{bessCapacity} kWh capacity · PV:BESS ratio 1:3 · Enables 24/7 power availability</div>
+                    <div className="text-mist text-xs mt-0.5">{bessCapacity} kWh capacity · PV:BESS ratio 1:3 · Enables 24/7 power availability</div>
                   </div>
                   <div className="ml-auto flex gap-6 text-center">
-                    <div><div className="text-indigo-400 font-black text-lg">{bessCapacity}</div><div className="text-slate-500 text-xs">kWh stored</div></div>
-                    <div><div className="text-indigo-400 font-black text-lg">{(bessCapacity / 24).toFixed(1)}</div><div className="text-slate-500 text-xs">avg kW</div></div>
+                    <div><div className="text-indigo-400 font-black text-lg">{bessCapacity}</div><div className="text-mist text-xs">kWh stored</div></div>
+                    <div><div className="text-indigo-400 font-black text-lg">{(bessCapacity / 24).toFixed(1)}</div><div className="text-mist text-xs">avg kW</div></div>
                   </div>
                 </div>
               )}
@@ -411,18 +420,20 @@ function ExpertDashboard() {
                 <div className="w-1.5 h-6 bg-emerald-600 rounded-full" />
                 <div>
                   <h3 className="text-lg lg:text-xl font-black text-white uppercase tracking-tight leading-none mb-1">Insight Analytics</h3>
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Real-time optimisation data</p>
+                  <p className="text-[10px] font-bold text-mist uppercase tracking-widest">Real-time optimisation data</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 <div className="flex flex-col gap-6 order-2 lg:order-1">
-                  <div className="glass-card rounded-[2rem] shadow-xl overflow-hidden hover:scale-[1.02] transition-transform">
+                  <motion.div whileHover={{ y: -3 }} className="surface-card rounded-[2rem] shadow-xl overflow-hidden"
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
                     <DigestateCard digestateLiters={digestateLiters} digestateSavingsEur={digestateSavingsEur} />
-                  </div>
-                  <div className="glass-card rounded-[2rem] shadow-xl overflow-hidden hover:scale-[1.02] transition-transform">
+                  </motion.div>
+                  <motion.div whileHover={{ y: -3 }} className="surface-card rounded-[2rem] shadow-xl overflow-hidden"
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}>
                     <RevenueStack revenue={revenue} />
-                  </div>
+                  </motion.div>
                   <RecipeCheckWarning recipeCheck={recipeCheck} />
                   <div className="glass-card rounded-2xl p-4 border-yellow-400/10 bg-yellow-400/5">
                     <ParasiticLoadNote winterTempC={winterTempC} parasiticFraction={parasiticFraction} biogasGross={biogasRaw} biogasNet={biogasEnergy} />
@@ -467,16 +478,17 @@ function ExpertDashboard() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* CAPEX breakdown */}
                 <div className="glass-card rounded-2xl p-6">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Capital Expenditure (CAPEX)</div>
+                  <div className="text-xs font-bold text-mist uppercase tracking-widest mb-5">Capital Expenditure (CAPEX)</div>
                   {[
                     { label: `Anaerobic Digester (${digesterVolume.toFixed(0)} m³ + 15 kW Micro-CHP)`, val: capex.digester, color: '#22c55e' },
-                    { label: `Solar PV Array (${(inputs.solarArea * 0.2).toFixed(1)} kWp)`, val: capex.solar, color: '#fbbf24' },
+                    { label: `Solar PV Array (${getSolarPeakKwp(inputs.solarArea).toFixed(1)} kWp)`, val: capex.solar, color: '#fbbf24' },
                     { label: `BESS (${bessCapacity} kWh @ 1:3 ratio)`, val: capex.bess, color: '#818cf8' },
+                    { label: 'Controls, BoP, install & contingency (30%)', val: capex.balanceOfPlant, color: '#d9a441' },
                   ].map(({ label, val, color }) => (
                     <div key={label} className="mb-3">
                       <div className="flex justify-between text-xs mb-1">
-                        <span className="text-slate-400">{label}</span>
-                        <span className="font-bold text-white">${val.toLocaleString()}</span>
+                        <span className="text-mist">{label}</span>
+                        <span className="stat-number font-bold text-white">€{val.toLocaleString()}</span>
                       </div>
                       <div className="h-1.5 rounded-full bg-slate-800">
                         <div className="h-1.5 rounded-full" style={{ width: `${capex.total > 0 ? (val / capex.total) * 100 : 0}%`, background: color }} />
@@ -485,14 +497,14 @@ function ExpertDashboard() {
                   ))}
                   <div className="mt-4 pt-4 border-t border-slate-800 flex justify-between">
                     <span className="text-slate-300 font-bold text-sm">Total CAPEX</span>
-                    <span className="text-white font-black text-lg">${capex.total.toLocaleString()}</span>
+                    <span className="stat-number text-white font-black text-lg">€{capex.total.toLocaleString()}</span>
                   </div>
-                  <p className="text-slate-600 text-xs mt-2">Ref: 120 m³ digester + 15 kW CHP = $40,000. Linear scaling applied.</p>
+                  <p className="text-mist-dim text-xs mt-2">Ref: 120 m³ digester + 15 kW CHP = €150,000 (Book1.xlsx). Linear scaling + 30% BoP applied.</p>
                 </div>
 
                 {/* Annual returns & payback */}
                 <div className="glass-card rounded-2xl p-6">
-                  <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-5">Annual Returns</div>
+                  <div className="text-xs font-bold text-mist uppercase tracking-widest mb-5">Annual Returns</div>
                   {[
                     { label: 'Electricity avoided', val: revenue.avoidedCostEur, color: '#22c55e' },
                     { label: 'Grid export revenue', val: revenue.exportRevenueEur, color: '#4ade80' },
@@ -502,7 +514,7 @@ function ExpertDashboard() {
                     <div key={label} className="flex justify-between items-center py-2 border-b border-slate-800/60">
                       <div className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full" style={{ background: color }} />
-                        <span className="text-slate-400 text-xs">{label}</span>
+                        <span className="text-mist text-xs">{label}</span>
                       </div>
                       <span className="text-white font-bold text-sm">€{val.toLocaleString()}</span>
                     </div>
@@ -548,7 +560,7 @@ function ExpertDashboard() {
                       <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                       <h3 className="text-xl lg:text-2xl font-black text-white italic uppercase">Scenario Control</h3>
                     </div>
-                    <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto lg:mx-0">
+                    <p className="text-xs sm:text-sm text-mist max-w-md mx-auto lg:mx-0">
                       Lock in variables to establish a performance baseline, then experiment to find your farm's optimal balance.
                     </p>
                   </div>
