@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useScroll } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage, LANGUAGES } from '../context/LanguageContext';
 import { staggerContainer, fadeUp } from './motion';
-import logo from '../assets/logo.png';
+import logoMark from '../assets/logo-mark.png';
 
 /* ── Language Switcher Dropdown ── */
 function LanguageSwitcher() {
@@ -121,8 +121,8 @@ export default function Navbar() {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
-          <img src={logo} alt="VONeng" className="h-8 w-auto" />
+        <Link to="/" className="flex items-center gap-2 group">
+          <img src={logoMark} alt="VONeng" className="h-8 w-auto" />
           <span className="text-white font-bold text-xl tracking-tight group-hover:text-green-400 transition-colors">
             VONeng
           </span>
@@ -146,9 +146,16 @@ export default function Navbar() {
           <LanguageSwitcher />
           {user ? (
             <>
-              <Link to="/dashboard" className="text-sm text-green-400 font-medium hover:text-green-300 transition-colors">
-                {user.name}
-              </Link>
+              {user.role === 'expert' && (
+                <Link
+                  to="/dashboard"
+                  className="btn-accent flex items-center gap-1.5 rounded-xl"
+                  style={{ padding: '8px 12px', fontSize: '13px' }}
+                >
+                  <span aria-hidden>🔬</span> Expert Dashboard
+                </Link>
+              )}
+              <span className="text-sm text-green-400 font-medium">{user.name}</span>
               <button onClick={logout} className="btn-secondary text-sm py-2 px-5">
                 Sign Out
               </button>
@@ -214,7 +221,12 @@ export default function Navbar() {
                 ))}
                 <motion.div variants={fadeUp} className="border-t border-green-900/50 pt-4 flex flex-col gap-3">
                   {user ? (
-                    <button onClick={logout} className="btn-primary text-center">Sign Out</button>
+                    <>
+                      {user.role === 'expert' && (
+                        <Link to="/dashboard" className="btn-accent text-center">🔬 Expert Dashboard</Link>
+                      )}
+                      <button onClick={logout} className="btn-primary text-center">Sign Out</button>
+                    </>
                   ) : (
                     <>
                       <Link to="/login" className="btn-secondary text-center">{t('nav_signin')}</Link>

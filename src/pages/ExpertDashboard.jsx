@@ -11,7 +11,7 @@ import RecipeCheckWarning from '../components/RecipeCheckWarning';
 import DigestateCard from '../components/DigestateCard';
 import RevenueStack from '../components/RevenueStack';
 import ParasiticLoadNote from '../components/ParasiticLoadNote';
-import logo from '../assets/logo.png';
+import logo from '../assets/logo-mark.png';
 import {
   getBiogasEnergy,
   getBiogasEnergyRaw,
