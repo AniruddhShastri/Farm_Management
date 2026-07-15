@@ -208,8 +208,33 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  /* Change the signed-in user's role (e.g. farmer → expert).
+     Role is self-selected at signup, so this is an equivalent path. */
+  async function updateRole(newRole) {
+    if (!user) return { success: false, error: 'Not signed in.' };
+    if (isFirebaseConfigured) {
+      try {
+        await setDoc(doc(db, 'users', user.id), { role: newRole }, { merge: true });
+        setUser(prev => ({ ...prev, role: newRole }));
+        return { success: true, role: newRole };
+      } catch (error) {
+        return { success: false, error: error.message };
+      }
+    } else {
+      // Mock fallback
+      const users = JSON.parse(localStorage.getItem('voneng_users') || '[]');
+      const idx = users.findIndex(u => u.id === user.id);
+      if (idx >= 0) {
+        users[idx].role = newRole;
+        localStorage.setItem('voneng_users', JSON.stringify(users));
+      }
+      setUser(prev => ({ ...prev, role: newRole }));
+      return { success: true, role: newRole };
+    }
+  }
+
   return (
-    <AuthContext.Provider value={{ user, loading, signup, login, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, signup, login, loginWithGoogle, logout, updateRole }}>
       {children}
     </AuthContext.Provider>
   );

@@ -191,6 +191,7 @@ function ExpertDashboard() {
   const effectiveVolume = getEffectiveDigesterVolume(inputs.cows, inputs.pigs, inputs.chickens);
   const rawVolume       = getRawDigesterVolume(inputs.cows, inputs.pigs, inputs.chickens);
   const isCapped        = rawVolume > 120;
+  const modulesNeeded   = Math.max(1, Math.ceil(rawVolume / 120));
   const bessCapacity    = getBESSCapacity(inputs.solarArea);
 
   /* ── Digestate (capped by digester volume) ── */
@@ -361,6 +362,24 @@ function ExpertDashboard() {
                       ? `Farm requires ${rawVolume.toFixed(0)} m³ but system is capped at 120 m³. Biogas and fertilizer output are scaled proportionally.`
                       : `${((rawVolume / 120) * 100).toFixed(0)}% of maximum digester capacity utilised.`}
                   </p>
+
+                  {isCapped && (
+                    <div className="mt-4 flex items-start gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+                      <span className="text-xl leading-none">⚙️</span>
+                      <div>
+                        <div className="text-sm font-black text-amber-300">
+                          Second digester module required
+                        </div>
+                        <p className="text-mist text-xs mt-1">
+                          Your feedstock needs {rawVolume.toFixed(0)} m³ of digester volume — more than the
+                          120 m³ reference module can handle. To process the full load without capping output,
+                          you'd need <strong className="text-amber-300">{modulesNeeded} × 120 m³ modules</strong>{' '}
+                          ({(modulesNeeded * 120).toLocaleString()} m³ total capacity). The figures above reflect a
+                          single capped module.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </section>

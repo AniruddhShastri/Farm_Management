@@ -1,10 +1,21 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import ExpertDashboard from './ExpertDashboard';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, updateRole } = useAuth();
+  const [switching, setSwitching] = useState(false);
+  const [switchError, setSwitchError] = useState('');
+
+  async function handleSwitchToExpert() {
+    setSwitchError('');
+    setSwitching(true);
+    const result = await updateRole('expert');
+    setSwitching(false);
+    if (!result.success) setSwitchError(result.error);
+    // On success, user.role updates → this component re-renders into the dashboard
+  }
 
   // Wait for Firebase session to restore before deciding access
   if (loading) {
@@ -38,13 +49,22 @@ export default function DashboardPage() {
             Your current account is registered as a Farmer.
           </p>
           <div className="flex flex-col gap-3">
+            <button
+              onClick={handleSwitchToExpert}
+              disabled={switching}
+              className="btn-accent w-full text-center"
+            >
+              {switching ? 'Switching…' : '🔬 Switch to Expert Account'}
+            </button>
             <Link to="/advisor" className="btn-primary w-full text-center">
               Back to Farm Advisor
             </Link>
-            <Link to="/signup" className="btn-secondary w-full text-center">
-              Create an Expert Account
-            </Link>
           </div>
+          {switchError && (
+            <p className="text-red-400 text-sm mt-4 p-3 rounded-lg" style={{ background: 'rgba(239,68,68,0.1)' }}>
+              {switchError}
+            </p>
+          )}
         </div>
       </div>
     );

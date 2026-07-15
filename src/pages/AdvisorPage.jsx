@@ -656,6 +656,11 @@ export default function AdvisorPage() {
                   Sign in for Expert View
                 </Link>
               )}
+              {user && user.role !== 'expert' && (
+                <Link to="/dashboard" className="btn-accent text-sm px-6 py-3">
+                  🔬 Expert View
+                </Link>
+              )}
             </motion.div>
           </motion.div>
         )}
